@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import type { Project } from '@/types'
 
 interface Props {
@@ -20,26 +21,41 @@ export function ProjectsView({ projects, onSelect }: Props) {
           <button
             key={project.id}
             onClick={() => onSelect(project.id)}
-            className="group w-full px-3 py-3 rounded-md text-left transition-all"
+            className="group w-full rounded-md text-left overflow-hidden transition-all"
             onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)' }}
             onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
           >
-            <div className="flex items-center justify-between gap-4 mb-1">
-              <div className="flex items-center gap-3 min-w-0">
-                <span className="font-medium text-zinc-200 text-sm flex-shrink-0 group-hover:text-zinc-100 transition-colors">
-                  {project.name}
-                </span>
-                <span className="text-zinc-700 text-xs flex-shrink-0 hidden md:block">
-                  {project.stack.slice(0, 3).join(' · ')}
+            {project.banner && (
+              <div
+                className="relative w-full overflow-hidden"
+                style={{ height: '90px', background: '#111116' }}
+              >
+                <Image
+                  src={project.banner}
+                  alt={`${project.name} banner`}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            )}
+            <div className="px-3 py-3">
+              <div className="flex items-center justify-between gap-4 mb-1">
+                <div className="flex items-center gap-3 min-w-0">
+                  <span className="font-medium text-zinc-200 text-sm flex-shrink-0 group-hover:text-zinc-100 transition-colors">
+                    {project.name}
+                  </span>
+                  <span className="text-zinc-700 text-xs flex-shrink-0 hidden md:block">
+                    {project.stack.slice(0, 3).join(' · ')}
+                  </span>
+                </div>
+                <span className="text-zinc-700 text-xs flex-shrink-0 group-hover:text-zinc-400 transition-colors">
+                  →
                 </span>
               </div>
-              <span className="text-zinc-700 text-xs flex-shrink-0 group-hover:text-zinc-400 transition-colors">
-                →
-              </span>
+              <p className="text-zinc-500 text-xs leading-relaxed pr-6">
+                {project.tagline}
+              </p>
             </div>
-            <p className="text-zinc-500 text-xs leading-relaxed pr-6">
-              {project.tagline}
-            </p>
           </button>
         ))}
       </div>

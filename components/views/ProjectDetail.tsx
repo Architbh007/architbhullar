@@ -92,7 +92,7 @@ export function ProjectDetail({ projects, projectId, onBack }: Props) {
       {project.banner && (
         <div
           className="relative w-full rounded-lg overflow-hidden mb-6"
-          style={{ aspectRatio: '16/9', border: '1px solid rgba(255,255,255,0.07)', background: '#111116' }}
+          style={{ height: '140px', border: '1px solid rgba(255,255,255,0.07)', background: '#111116' }}
         >
           <Image
             src={project.banner}
