@@ -87,7 +87,7 @@ export function Workspace({ content }: Props) {
           <motion.span
             className="text-violet-500 ml-px"
             animate={{ opacity: [1, 0, 1] }}
-            transition={{ duration: 1, repeat: Infinity, ease: 'steps(1)' }}
+            transition={{ duration: 0.8, repeat: Infinity, ease: 'linear', times: [0, 0.49, 0.5, 1] }}
           >
             |
           </motion.span>
