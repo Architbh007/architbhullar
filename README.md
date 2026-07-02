@@ -68,7 +68,7 @@ This project uses **Vercel's built-in CI/CD** — no GitHub Actions needed.
 Local changes
   → git add .
   → git commit -m "update"
-  → git push origin main
+  → git push origin master
   → GitHub receives the push
   → Vercel detects the push automatically
   → Vercel builds the project
@@ -81,16 +81,7 @@ Pull requests automatically get **preview deployments** — a unique URL you can
 
 ## One-Time Setup: Connect GitHub to Vercel
 
-### 1. Change default branch to `main`
-
-The repo was renamed from `master` to `main`. You need to update GitHub:
-
-1. Go to [github.com/Architbh007/architbhullar](https://github.com/Architbh007/architbhullar)
-2. **Settings → Branches → Default branch**
-3. Switch from `master` to `main` → click **Update**
-4. Then delete the old `master` branch from **Settings → Branches**
-
-### 2. Import project into Vercel
+### 1. Import project into Vercel
 
 1. Go to [vercel.com/new](https://vercel.com/new)
 2. Click **Import Git Repository**
@@ -99,6 +90,10 @@ The repo was renamed from `master` to `main`. You need to update GitHub:
 5. Click **Deploy**
 
 Vercel will now rebuild and redeploy automatically on every push to `main`.
+
+### 2. Set production branch to `master` in Vercel
+
+When importing, Vercel will ask which branch to deploy. Select **master**. If already imported, go to **Settings → Git → Production Branch** and set it to `master`.
 
 ### 3. Add Environment Variables in Vercel
 
