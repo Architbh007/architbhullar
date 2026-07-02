@@ -1,16 +1,10 @@
-'use client'
-
-import { motion } from 'framer-motion'
 import type { SkillGroup } from '@/types'
 
 interface Props {
   skills: SkillGroup[]
-  scrollRef: React.RefObject<HTMLElement>
 }
 
-export function SkillsView({ skills, scrollRef }: Props) {
-  const vp = { root: scrollRef, once: true, amount: 0.1 }
-
+export function SkillsView({ skills }: Props) {
   return (
     <div>
       <div className="flex items-center gap-1.5 mb-8">
@@ -32,12 +26,8 @@ export function SkillsView({ skills, scrollRef }: Props) {
         {skills.map((group) => {
           const hasAnyProficiency = group.skills.some((s) => s.proficiency)
           return (
-            <motion.div
+            <div
               key={group.category}
-              initial={{ opacity: 0, y: 18 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={vp}
-              transition={{ duration: 0.4, ease: 'easeOut' }}
               className="flex gap-8 py-3"
               style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}
             >
@@ -62,7 +52,7 @@ export function SkillsView({ skills, scrollRef }: Props) {
                   </span>
                 )}
               </div>
-            </motion.div>
+            </div>
           )
         })}
       </div>

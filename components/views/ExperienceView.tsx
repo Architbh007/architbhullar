@@ -1,11 +1,7 @@
-'use client'
-
-import { motion } from 'framer-motion'
 import type { ExperienceItem } from '@/types'
 
 interface Props {
   experience: ExperienceItem[]
-  scrollRef: React.RefObject<HTMLElement>
 }
 
 const typeLabel: Record<string, string> = {
@@ -15,9 +11,7 @@ const typeLabel: Record<string, string> = {
   project: 'project',
 }
 
-export function ExperienceView({ experience, scrollRef }: Props) {
-  const vp = { root: scrollRef, once: true, amount: 0.15 }
-
+export function ExperienceView({ experience }: Props) {
   return (
     <div>
       <div className="flex items-center gap-1.5 mb-6">
@@ -29,14 +23,7 @@ export function ExperienceView({ experience, scrollRef }: Props) {
         {experience.map((exp, i) => {
           const isLast = i === experience.length - 1
           return (
-            <motion.div
-              key={`${exp.organization}-${exp.role}`}
-              initial={{ opacity: 0, y: 18 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={vp}
-              transition={{ duration: 0.4, ease: 'easeOut' }}
-              className="flex gap-6"
-            >
+            <div key={`${exp.organization}-${exp.role}`} className="flex gap-6">
               <div className="flex-shrink-0 flex flex-col items-center" style={{ width: '44px' }}>
                 <span className="font-mono text-[10px] text-zinc-700 uppercase flex-shrink-0"
                   style={{ letterSpacing: '0.08em' }}>
@@ -70,7 +57,7 @@ export function ExperienceView({ experience, scrollRef }: Props) {
                   </ul>
                 )}
               </div>
-            </motion.div>
+            </div>
           )
         })}
       </div>
