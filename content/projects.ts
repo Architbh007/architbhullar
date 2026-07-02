@@ -21,6 +21,7 @@ export const projects: Project[] = [
     stack: ['Python', 'Rasa NLU', 'React', 'FastAPI', 'PostgreSQL', 'Docker'],
     github: 'https://github.com/architbhullar/evat',
     banner: 'https://picsum.photos/seed/evat-banner/1200/400',
+    video: 'https://www.youtube.com/watch?v=jNQXAC9IVRw',
     status: 'completed',
     timeline: '2023 · 6 months',
     role: 'Lead Developer & AI Engineer',
