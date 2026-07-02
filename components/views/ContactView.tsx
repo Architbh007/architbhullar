@@ -71,6 +71,33 @@ export function ContactView({ socials }: Props) {
 
       <div style={{ height: '1px', background: 'rgba(255,255,255,0.05)', margin: '32px 0' }} />
 
+      {/* Book a call */}
+      <div className="mb-8">
+        <p className="font-mono text-[11px] text-zinc-700 uppercase tracking-widest mb-4">Book a call</p>
+        <div
+          className="flex items-center justify-between gap-4 px-4 py-4 rounded-lg"
+          style={{ border: '1px solid rgba(255,255,255,0.07)', background: 'rgba(255,255,255,0.02)' }}
+        >
+          <div>
+            <p className="text-zinc-200 text-sm font-medium mb-0.5">Coffee Chat · 15 min</p>
+            <p className="text-zinc-500 text-xs">Internship opportunities, collaborations, or just a chat</p>
+          </div>
+          <a
+            href="https://cal.com/architbh007/coffee-chat"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-shrink-0 px-4 py-2 rounded-md text-xs font-medium transition-colors"
+            style={{ background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.25)', color: '#a78bfa' }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(139,92,246,0.25)' }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(139,92,246,0.15)' }}
+          >
+            Book →
+          </a>
+        </div>
+      </div>
+
+      <div style={{ height: '1px', background: 'rgba(255,255,255,0.05)', margin: '32px 0' }} />
+
       <div className="space-y-3 max-w-lg">
         <p className="text-zinc-500 text-sm leading-relaxed">
           Currently seeking Software Engineering and AI Engineering internship opportunities for the Australian Summer (November 2026 – February 2027). I hold a Student Visa (Subclass 500) with full working rights during the summer break, as I am not enrolled in Trimester 3. Upon graduating in November 2027, I will be eligible to apply for the Temporary Graduate Visa (Subclass 485).
