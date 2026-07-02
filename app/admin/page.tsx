@@ -223,6 +223,49 @@ function StoryTab({ content, onChange }: { content: SiteContent; onChange: (c: S
   )
 }
 
+function ImageUpload({ onUrl, label = '↑ Upload image' }: { onUrl: (url: string) => void; label?: string }) {
+  const [uploading, setUploading] = useState(false)
+  const [status, setStatus] = useState<string | null>(null)
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    setStatus(null)
+    const formData = new FormData()
+    formData.append('file', file)
+    try {
+      const res = await fetch('/api/admin/upload?folder=banners', { method: 'POST', body: formData })
+      const data = await res.json()
+      if (res.ok) {
+        onUrl(data.url)
+        setStatus('✓ uploaded')
+      } else {
+        setStatus(`Error: ${data.error}`)
+      }
+    } catch {
+      setStatus('Upload failed')
+    }
+    setUploading(false)
+    e.target.value = ''
+  }
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <label style={{
+        display: 'inline-block', padding: '5px 12px', borderRadius: '5px', fontSize: '12px',
+        background: uploading ? 'rgba(255,255,255,0.03)' : 'rgba(139,92,246,0.15)',
+        border: '1px solid rgba(139,92,246,0.3)', color: uploading ? '#52525b' : '#a78bfa',
+        cursor: uploading ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap',
+      }}>
+        {uploading ? 'Uploading...' : label}
+        <input type="file" accept="image/*" onChange={handleUpload} disabled={uploading} style={{ display: 'none' }} />
+      </label>
+      {status && <span style={{ fontSize: '11px', color: status.startsWith('✓') ? '#34d399' : '#f87171', fontFamily: 'monospace' }}>{status}</span>}
+    </div>
+  )
+}
+
 function VideoUpload({ onUrl }: { onUrl: (url: string) => void }) {
   const [uploading, setUploading] = useState(false)
   const [status, setStatus] = useState<string | null>(null)
@@ -362,8 +405,14 @@ function ProjectsTab({ content, onChange }: { content: SiteContent; onChange: (c
                 <div><Label>Demo URL</Label><Input value={project.demo ?? ''} onChange={(v) => setField(project.id, 'demo', v)} /></div>
               </div>
               <div>
-                <Label>Banner image URL</Label>
-                <Input value={project.banner ?? ''} onChange={(v) => setField(project.id, 'banner', v)} placeholder="/images/projects/myproject.jpg or https://..." />
+                <Label>Banner image</Label>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '6px' }}>
+                  <ImageUpload onUrl={(url) => setField(project.id, 'banner', url)} />
+                  {project.banner && (
+                    <span style={{ fontSize: '11px', color: '#52525b', fontFamily: 'monospace' }}>✓ banner set</span>
+                  )}
+                </div>
+                <Input value={project.banner ?? ''} onChange={(v) => setField(project.id, 'banner', v)} placeholder="or paste image URL" />
               </div>
               <div>
                 <Label>Video (upload or paste URL)</Label>
