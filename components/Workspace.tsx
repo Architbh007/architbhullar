@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
+import { motion } from 'framer-motion'
 import { AboutView } from './views/AboutView'
 import { ProjectsView } from './views/ProjectsView'
 import { ProjectDetail } from './views/ProjectDetail'
@@ -21,6 +22,22 @@ const NAV: { id: View; label: string }[] = [
   { id: 'experience', label: 'experience' },
   { id: 'contact', label: 'contact' },
 ]
+
+function useTypewriter(text: string, speed = 35) {
+  const [displayed, setDisplayed] = useState('')
+  useEffect(() => {
+    setDisplayed('')
+    if (!text) return
+    let i = 0
+    const interval = setInterval(() => {
+      i++
+      setDisplayed(text.slice(0, i))
+      if (i >= text.length) clearInterval(interval)
+    }, speed)
+    return () => clearInterval(interval)
+  }, [text])
+  return displayed
+}
 
 interface Props {
   content: SiteContent
@@ -42,6 +59,7 @@ export function Workspace({ content }: Props) {
   }
 
   const promptLabel = selectedProject ? `projects / ${selectedProject}` : view
+  const typedPrompt = useTypewriter(promptLabel)
 
   return (
     <div className="flex flex-col" style={{ height: '100dvh', minHeight: '100dvh' }}>
@@ -64,8 +82,15 @@ export function Workspace({ content }: Props) {
           </button>
           <span className="text-zinc-700 shrink-0"> &gt; </span>
           <span className="text-violet-400 truncate" style={{ maxWidth: '180px' }}>
-            {promptLabel}
+            {typedPrompt}
           </span>
+          <motion.span
+            className="text-violet-500 ml-px"
+            animate={{ opacity: [1, 0, 1] }}
+            transition={{ duration: 1, repeat: Infinity, ease: 'steps(1)' }}
+          >
+            |
+          </motion.span>
         </div>
 
         {/* Center: nav — desktop */}
