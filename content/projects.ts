@@ -20,6 +20,7 @@ export const projects: Project[] = [
       'Built a conversational AI assistant (Rasa NLU) trained on EV domain data, paired with a route range calculator and a cost-benefit analysis tool. The assistant was designed to ask clarifying questions to personalise its recommendations rather than giving generic responses.',
     stack: ['Python', 'Rasa NLU', 'React', 'FastAPI', 'PostgreSQL', 'Docker'],
     github: 'https://github.com/architbhullar/evat',
+    banner: 'https://picsum.photos/seed/evat-banner/1200/400',
     status: 'completed',
     timeline: '2023 · 6 months',
     role: 'Lead Developer & AI Engineer',
