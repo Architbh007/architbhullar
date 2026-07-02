@@ -1,8 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import Image from 'next/image'
-import { motion } from 'framer-motion'
 import type { Profile, StackRow, StoryEntry, Socials } from '@/types'
 import { GitHubIcon, LinkedInIcon } from '@/components/ui/Icons'
 import type { View } from '@/components/Workspace'
@@ -25,25 +23,7 @@ function Divider() {
   return <div style={{ height: '1px', background: 'rgba(255,255,255,0.05)', margin: '32px 0' }} />
 }
 
-function useWamCounter(target: number | undefined, duration = 1400) {
-  const [value, setValue] = useState(0)
-  useEffect(() => {
-    if (target == null) return
-    const start = performance.now()
-    const tick = (now: number) => {
-      const progress = Math.min((now - start) / duration, 1)
-      const eased = 1 - Math.pow(1 - progress, 3)
-      setValue(parseFloat((eased * target).toFixed(2)))
-      if (progress < 1) requestAnimationFrame(tick)
-    }
-    requestAnimationFrame(tick)
-  }, [target, duration])
-  return value
-}
-
 export function AboutView({ profile, stack, story, socials, onNavigate }: Props) {
-  const displayWam = useWamCounter(profile.wam)
-
   return (
     <div>
       <div className="flex items-center gap-1.5 mb-5">
@@ -85,10 +65,7 @@ export function AboutView({ profile, stack, story, socials, onNavigate }: Props)
               <>
                 <span className="text-zinc-800 text-xs">·</span>
                 <span className="text-zinc-600 text-xs">
-                  WAM{' '}
-                  <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}>
-                    {displayWam.toFixed(2)}
-                  </motion.span>
+                  WAM {profile.wam}
                   {profile.wamTarget != null && (
                     <span className="text-zinc-700"> → {profile.wamTarget} target</span>
                   )}
