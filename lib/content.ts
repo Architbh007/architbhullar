@@ -23,13 +23,14 @@ export async function getContent(): Promise<SiteContent> {
   }
 
   try {
-    const { list } = await import('@vercel/blob')
+    const { list, getDownloadUrl } = await import('@vercel/blob')
     const { blobs } = await list({ prefix: 'content/' })
     const blob = blobs.find((b) => b.pathname === 'content/site-content.json')
 
     if (!blob) return DEFAULT_CONTENT
 
-    const res = await fetch(blob.url, { next: { revalidate: 60 } })
+    const downloadUrl = getDownloadUrl(blob.url)
+    const res = await fetch(downloadUrl, { next: { revalidate: 60 } })
     if (!res.ok) return DEFAULT_CONTENT
 
     return (await res.json()) as SiteContent
