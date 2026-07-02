@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import type { Profile, StackRow, StoryEntry, Socials } from '@/types'
@@ -13,6 +13,7 @@ interface Props {
   story: StoryEntry[]
   socials: Socials
   onNavigate: (v: View) => void
+  scrollRef: React.RefObject<HTMLElement>
 }
 
 function SectionLabel({ text }: { text: string }) {
@@ -41,8 +42,15 @@ function useWamCounter(target: number | undefined, duration = 1400) {
   return value
 }
 
-export function AboutView({ profile, stack, story, socials, onNavigate }: Props) {
+const reveal = (delay = 0) => ({
+  initial: { opacity: 0, y: 18 },
+  whileInView: { opacity: 1, y: 0 },
+  transition: { duration: 0.4, ease: 'easeOut', delay },
+})
+
+export function AboutView({ profile, stack, story, socials, onNavigate, scrollRef }: Props) {
   const displayWam = useWamCounter(profile.wam)
+  const vp = { root: scrollRef, once: true, amount: 0.15 }
 
   return (
     <div>
@@ -130,7 +138,9 @@ export function AboutView({ profile, stack, story, socials, onNavigate }: Props)
         <SectionLabel text="About me" />
         <div className="space-y-4 max-w-2xl">
           {profile.bioExtended.map((para, i) => (
-            <p key={i} className="text-zinc-400 text-sm leading-relaxed">{para}</p>
+            <motion.p key={i} {...reveal(i * 0.05)} viewport={vp} className="text-zinc-400 text-sm leading-relaxed">
+              {para}
+            </motion.p>
           ))}
         </div>
       </section>
@@ -140,13 +150,13 @@ export function AboutView({ profile, stack, story, socials, onNavigate }: Props)
       <section>
         <SectionLabel text="Tech stack" />
         <div className="space-y-2.5">
-          {stack.map((row) => (
-            <div key={row.category} className="flex gap-6 items-baseline">
+          {stack.map((row, i) => (
+            <motion.div key={row.category} {...reveal(i * 0.04)} viewport={vp} className="flex gap-6 items-baseline">
               <span className="font-mono text-xs text-zinc-700 flex-shrink-0" style={{ width: '72px' }}>
                 {row.category}
               </span>
               <span className="text-zinc-400 text-sm">{row.technologies.join(', ')}</span>
-            </div>
+            </motion.div>
           ))}
         </div>
         <p className="mt-4 text-xs">
@@ -162,7 +172,7 @@ export function AboutView({ profile, stack, story, socials, onNavigate }: Props)
         <SectionLabel text="Story" />
         <div className="space-y-6">
           {story.map((entry, i) => (
-            <div key={entry.year} className="flex gap-6">
+            <motion.div key={entry.year} {...reveal()} viewport={vp} className="flex gap-6">
               <div className="flex-shrink-0 flex flex-col items-center" style={{ width: '40px' }}>
                 <span className="font-mono text-xs text-zinc-600">{entry.year}</span>
                 {i < story.length - 1 && (
@@ -175,7 +185,7 @@ export function AboutView({ profile, stack, story, socials, onNavigate }: Props)
                   <li key={event} className="text-zinc-500 text-sm leading-relaxed">{event}</li>
                 ))}
               </ul>
-            </div>
+            </motion.div>
           ))}
         </div>
       </section>

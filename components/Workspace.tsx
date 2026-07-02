@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
 import { AboutView } from './views/AboutView'
@@ -48,6 +48,7 @@ export function Workspace({ content }: Props) {
   const pathname = usePathname()
   const [selectedProject, setSelectedProject] = useState<string | null>(null)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const mainRef = useRef<HTMLElement>(null)
 
   const pathSegment = pathname.replace(/^\//, '') as View
   const view: View = VIEWS.includes(pathSegment) ? pathSegment : 'about'
@@ -180,7 +181,7 @@ export function Workspace({ content }: Props) {
       </AnimatePresence>
 
       {/* ── Content ── */}
-      <main className="flex-1 overflow-y-auto">
+      <main ref={mainRef} className="flex-1 overflow-y-auto">
         <div className="max-w-3xl mx-auto px-5 md:px-10 py-8 md:py-10">
           {view === 'about' && (
             <AboutView
@@ -189,6 +190,7 @@ export function Workspace({ content }: Props) {
               story={content.story}
               socials={content.socials}
               onNavigate={navigate}
+              scrollRef={mainRef}
             />
           )}
 
@@ -203,8 +205,8 @@ export function Workspace({ content }: Props) {
             />
           )}
 
-          {view === 'skills' && <SkillsView skills={content.skills} />}
-          {view === 'experience' && <ExperienceView experience={content.experience} />}
+          {view === 'skills' && <SkillsView skills={content.skills} scrollRef={mainRef} />}
+          {view === 'experience' && <ExperienceView experience={content.experience} scrollRef={mainRef} />}
           {view === 'contact' && <ContactView socials={content.socials} />}
         </div>
       </main>
