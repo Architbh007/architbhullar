@@ -95,19 +95,28 @@ export function Workspace({ content }: Props) {
 
         {/* Center: nav — desktop */}
         <div className="hidden md:flex items-center gap-6 absolute left-1/2 -translate-x-1/2">
-          {NAV.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => navigate(item.id)}
-              className={`text-xs transition-colors ${
-                view === item.id && !selectedProject
-                  ? 'text-zinc-100'
-                  : 'text-zinc-500 hover:text-zinc-300'
-              }`}
-            >
-              {item.label}
-            </button>
-          ))}
+          {NAV.map((item) => {
+            const isActive = view === item.id && !selectedProject
+            return (
+              <button
+                key={item.id}
+                onClick={() => navigate(item.id)}
+                className={`relative pb-1.5 text-xs transition-colors ${
+                  isActive ? 'text-zinc-100' : 'text-zinc-500 hover:text-zinc-300'
+                }`}
+              >
+                {item.label}
+                {isActive && (
+                  <motion.div
+                    layoutId="nav-indicator"
+                    className="absolute left-0 right-0 bottom-0 h-px bg-violet-400"
+                    style={{ boxShadow: '0 0 6px rgba(167,139,250,0.6)' }}
+                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                  />
+                )}
+              </button>
+            )
+          })}
         </div>
 
         {/* Right: resume + mobile toggle */}

@@ -839,9 +839,25 @@ export default function AdminPage() {
   }
 
   if (loading) {
+    const skeleton = { background: 'rgba(255,255,255,0.04)', borderRadius: '5px' }
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <span style={{ fontFamily: 'monospace', fontSize: '12px', color: '#52525b' }}>Loading content...</span>
+      <div style={{ minHeight: '100vh', background: '#0d0d10' }}>
+        <div style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '0 24px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className="animate-pulse" style={{ ...skeleton, width: '120px', height: '12px' }} />
+          <div className="animate-pulse" style={{ ...skeleton, width: '100px', height: '24px' }} />
+        </div>
+        <div style={{ display: 'flex', height: 'calc(100vh - 44px)' }}>
+          <div style={{ width: '160px', flexShrink: 0, borderRight: '1px solid rgba(255,255,255,0.06)', padding: '16px 12px' }}>
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="animate-pulse" style={{ ...skeleton, height: '30px', marginBottom: '6px' }} />
+            ))}
+          </div>
+          <div style={{ flex: 1, padding: '24px 32px', display: 'grid', gap: '16px' }}>
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="animate-pulse" style={{ ...skeleton, height: i % 2 === 0 ? '14px' : '38px', width: i % 3 === 0 ? '60%' : '100%' }} />
+            ))}
+          </div>
+        </div>
       </div>
     )
   }

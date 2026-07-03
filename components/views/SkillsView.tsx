@@ -1,4 +1,6 @@
 import type { SkillGroup } from '@/types'
+import { AnimatedSection } from '@/components/ui/AnimatedSection'
+import { Badge } from '@/components/ui/Badge'
 
 interface Props {
   skills: SkillGroup[]
@@ -23,36 +25,39 @@ export function SkillsView({ skills }: Props) {
       </div>
 
       <div>
-        {skills.map((group) => {
+        {skills.map((group, i) => {
           const hasAnyProficiency = group.skills.some((s) => s.proficiency)
           return (
-            <div
-              key={group.category}
-              className="flex gap-8 py-3"
-              style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}
-            >
-              <span className="text-zinc-400 text-xs font-mono flex-shrink-0 pt-0.5" style={{ width: '140px' }}>
-                {group.category}
-              </span>
-              <div className="min-w-0 flex-1">
-                {hasAnyProficiency ? (
-                  <div className="space-y-4">
-                    {group.skills.map((skill) => (
-                      <div key={skill.name}>
-                        <p className="text-zinc-200 text-sm font-medium mb-1">{skill.name}</p>
-                        {skill.proficiency && (
-                          <p className="text-zinc-500 text-xs leading-relaxed">{skill.proficiency}</p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <span className="text-zinc-300 text-sm">
-                    {group.skills.map((s) => s.name).join(', ')}
-                  </span>
-                )}
+            <AnimatedSection key={group.category} delay={i * 0.05}>
+              <div
+                className="flex gap-8 py-3"
+                style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}
+              >
+                <span className="text-zinc-400 text-xs font-mono flex-shrink-0 pt-0.5" style={{ width: '140px' }}>
+                  {group.category}
+                </span>
+                <div className="min-w-0 flex-1">
+                  {hasAnyProficiency ? (
+                    <div className="space-y-4">
+                      {group.skills.map((skill) => (
+                        <div key={skill.name}>
+                          <p className="text-zinc-200 text-sm font-medium mb-1">{skill.name}</p>
+                          {skill.proficiency && (
+                            <p className="text-zinc-500 text-xs leading-relaxed">{skill.proficiency}</p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex flex-wrap gap-1.5">
+                      {group.skills.map((s) => (
+                        <Badge key={s.name} variant="default" size="sm">{s.name}</Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            </AnimatedSection>
           )
         })}
       </div>

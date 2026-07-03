@@ -46,6 +46,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full`}>
       <body className="h-full overflow-hidden bg-[#0d0d10] text-zinc-200 antialiased">
+        <div className="grain-overlay" />
         {children}
       </body>
     </html>

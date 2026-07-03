@@ -13,13 +13,19 @@
 - [x] `~/archit > {view}` terminal breadcrumb with animated transitions
 - [x] 5 views: About, Projects, Skills, Experience, Contact
 - [x] **About** — whoami block (photo, name, title, WAM, links), About me paragraphs, Tech Stack table, Story timeline
-- [x] **Projects** — `> ls projects` table list → click for full case study (Problem, Architecture, Challenges, Stack, Learnings, Impact, Future)
+- [x] **Projects** — card grid (was a plain list): banner hover-zoom, gradient overlay, status dot, tech-stack pills → click for full case study (Problem, Architecture, Challenges, Stack, Learnings, Impact, Future)
 - [x] **Skills** — category banners + pill chips, no project references
 - [x] **Experience** — story-style timeline with type labels (edu/work/award)
-- [x] **Contact** — email + copy button, GitHub, LinkedIn, Resume links, Cal.com booking, availability blurb (all editable now — see below)
+- [x] **Contact** — email + copy button, GitHub, LinkedIn, Resume links, Cal.com booking (glow-accented card), availability blurb (all editable now — see below)
 - [x] Mobile responsive — hamburger menu, compact layout
 - [x] URL routing — `/projects`, `/skills`, `/experience`, `/contact` all resolve correctly, browser back/forward works
 - [x] WAM (79.65 → 85 target) displayed on About under university
+- [x] Visual polish pass: staggered fade-in on every section (using previously-built but unused
+      `AnimatedSection`/`lib/animations.ts`), animated sliding underline on the active nav tab, subtle
+      grain texture over the whole public site, soft violet glow behind the profile photo and the
+      Book-a-call card, bigger name typography on About, animated link underlines, skeleton loading
+      state in admin (was plain "Loading content..." text) — verified visually via Playwright
+      screenshots across all 5 public views, zero console errors
 
 ### Backend (Supabase)
 
