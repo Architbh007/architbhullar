@@ -1,6 +1,7 @@
 # progress.md
 
-## Status: Production-ready. Backend migrated from Vercel Blob to Supabase.
+## Status: Backend migrated from Vercel Blob to Supabase, admin login working locally.
+## BLOCKED: production deployment on Vercel is currently failing to build — see "Active blocker" below.
 
 ---
 
@@ -45,6 +46,10 @@
 - [x] Contact page copy (availability blurb, extra blurb, response note, Cal.com link) — previously
       hardcoded in `ContactView.tsx`, now editable from the Socials & Resume tab
 - [x] Resume upload always replaces the single active file (no duplicate resumes ever pile up in storage)
+- [x] **Admin login verified working locally** — signed in successfully at `localhost:3000/admin/login`
+      with `bhullararchit@gmail.com`. (Getting here took two failed Supabase email-link attempts and
+      a hit rate limit; password was ultimately set directly via the Supabase admin API, chosen and
+      given by the user, verified by an immediate sign-in check in the same step before confirming.)
 
 ### Infrastructure
 
@@ -61,21 +66,49 @@
 
 ---
 
+## Active blocker: production build failing on Vercel
+
+`architbhullar.com` is currently still serving the **old**, pre-migration build (old password-only
+login page, old unauthenticated `/api/admin/content` route) — not because old code is deliberately
+still live, but because **every deployment attempt of the new code has failed to build**, and Vercel
+falls back to serving the last successful (old) deployment instead of taking the site down.
+
+Confirmed via the build log for commit `03e5831`:
+
+```
+Error occurred prerendering page "/projects".
+Error: supabaseUrl is required.
+Export encountered an error on /[view]/page: /projects, exiting the build.
+```
+
+**Root cause:** `NEXT_PUBLIC_SUPABASE_URL` was not available in the build environment when this ran.
+`getContent()` needs it at build time because `/projects`, `/skills`, `/experience`, `/contact` are
+statically prerendered (SSG, per `generateStaticParams` in `app/[view]/page.tsx`).
+
+**What we know:** the user has since added the Supabase env vars in the Vercel dashboard. Not yet
+confirmed:
+1. Whether `NEXT_PUBLIC_SUPABASE_URL` (exact name, no typo/whitespace) is checked for the
+   **Production** environment specifically, not only Preview/Development.
+2. Whether a fresh deployment has actually been triggered *after* saving the env vars — adding an
+   env var alone does not rebuild anything.
+
+**Next step:** verify env var scope in Vercel, then trigger a redeploy and confirm the build log shows
+no `supabaseUrl is required` error and the deployed login page has an Email field (a quick way to
+visually confirm the new code is actually live, vs. the stale fallback).
+
+---
+
 ## Pending
 
-- [ ] **Admin login not yet verified end-to-end** — password was set via the Supabase recovery flow
-      but the last sign-in attempt failed ("Invalid login credentials"). Supabase's email rate limit
-      was hit while debugging, so a fresh reset link couldn't be sent immediately. Needs to be
-      resolved directly (see conversation) before the admin panel can actually be used.
+- [ ] Resolve the Vercel build failure above — this is what's actually blocking production.
+- [ ] Once production is live: verify `architbhullar.com/admin/login` shows the Email+Password form
+      (not the old password-only one) and that login works there too, not just locally.
 - [ ] Old `content/profile.ts`, `story.ts`, `projects.ts`, `skills.ts`, `experience.ts`, `socials.ts`
       are now dead code (nothing imports them except the already-run migration script) — left in
       place pending an explicit go-ahead to delete them.
 - [ ] `scripts/migrate-to-supabase.ts` is similarly done-its-job — fine to delete once the dead
       `content/*.ts` files above go, since it depends on them.
 - [ ] `README.md` still describes the old Vercel Blob deployment steps — not yet updated.
-- [ ] Vercel dashboard env vars still need to be updated for production: add
-      `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`;
-      remove `ADMIN_PASSWORD`, `BLOB_READ_WRITE_TOKEN`.
 - [ ] Add real resume PDF via the new admin resume-upload feature (no `public/resume.pdf` ever existed).
 
 ---

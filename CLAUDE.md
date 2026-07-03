@@ -127,8 +127,16 @@ without them.
 ## Deploying to Vercel
 
 1. Connect GitHub repo to Vercel
-2. Set the three env vars above in the Vercel dashboard (Production + Preview)
-3. Deploy
+2. Set the three env vars above in the Vercel dashboard — **must be checked for the Production
+   environment specifically**, not just Preview/Development, since `/projects`, `/skills`,
+   `/experience`, `/contact` are statically prerendered (SSG) and `getContent()` needs
+   `NEXT_PUBLIC_SUPABASE_URL` at build time. Missing/wrong-scoped env vars fail the build with
+   `Error: supabaseUrl is required.` while prerendering `/projects` — this exact failure has
+   happened once already.
+3. Adding/changing an env var does **not** itself trigger a rebuild — deploy (or redeploy) after
+   saving them.
+4. Deploy, then check the build log for the `supabaseUrl is required` error specifically if the
+   build fails — that error means the env vars weren't actually visible to this particular build.
 
 Existing content is already live in Supabase — nothing to seed post-deploy.
 
