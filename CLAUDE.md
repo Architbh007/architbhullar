@@ -89,6 +89,9 @@ Single-page workspace with URL-based view switching. No scroll — content switc
 - Login: `/admin/login` (email + password) → `POST /api/admin/login` → Supabase session cookie.
   Forgotten password: use Supabase's password-reset email flow, which lands on
   `/admin/set-password`.
+- Rate limited: `POST /api/admin/login` allows 5 failed attempts per IP per 15 minutes before
+  returning 429, tracked in the `login_attempts` table (`lib/rateLimit.ts`) — no Redis/external
+  service, just Postgres, since that's already the one thing this project depends on.
 - Content editor: `/admin` has tabs for Profile, Story, Projects, Skills, Experience, Socials & Resume
   (the last one also covers the previously-hardcoded contact-page copy).
 - Save: each tab's "Save & Publish" PUTs to its own resource endpoint (`/api/admin/profile`,

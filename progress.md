@@ -46,6 +46,9 @@
 - [x] Contact page copy (availability blurb, extra blurb, response note, Cal.com link) — previously
       hardcoded in `ContactView.tsx`, now editable from the Socials & Resume tab
 - [x] Resume upload always replaces the single active file (no duplicate resumes ever pile up in storage)
+- [x] Rate limiting on `/api/admin/login` — 5 failed attempts per IP per 15 minutes → 429, tracked via
+      a `login_attempts` Postgres table (no new external service like Redis needed), self-cleans
+      entries older than 24h, resets on a successful login
 - [x] **Admin login verified working locally** — signed in successfully at `localhost:3000/admin/login`
       with `bhullararchit@gmail.com`. (Getting here took two failed Supabase email-link attempts and
       a hit rate limit; password was ultimately set directly via the Supabase admin API, chosen and
@@ -83,7 +86,6 @@ triggering a fresh deployment. Verified on `architbhullar.com`: new Email+Passwo
 
 ## Pending
 
-- [ ] `README.md` still describes the old Vercel Blob deployment steps — not yet updated.
 - [ ] Add real resume PDF via the new admin resume-upload feature (no `public/resume.pdf` ever existed).
 - [ ] Revoke the temporary Vercel API token used to diagnose/fix the env var issue
       (vercel.com/account/tokens) — no longer needed now that the fix is confirmed working.
@@ -100,7 +102,6 @@ triggering a fresh deployment. Verified on `architbhullar.com`: new Email+Passwo
       drag-and-drop manager yet.
 - [ ] Stack snapshot (`content/stack.ts`) not editable in admin — edit the TS file directly for now
 - [ ] No project reordering in admin (drag-and-drop) — reorder via JSON array order in the editor
-- [ ] `/admin` login has no rate limiting beyond Supabase Auth's own defaults
 - [ ] Project detail doesn't have a URL (`/projects/evat`) — sub-view state only
 
 ---

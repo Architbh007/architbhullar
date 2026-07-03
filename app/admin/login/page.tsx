@@ -25,7 +25,8 @@ export default function AdminLogin() {
       router.push('/admin')
       router.refresh()
     } else {
-      setError('Incorrect email or password.')
+      const data = await res.json().catch(() => null)
+      setError(data?.error || 'Incorrect email or password.')
       setLoading(false)
     }
   }
