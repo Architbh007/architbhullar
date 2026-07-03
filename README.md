@@ -1,6 +1,6 @@
 # architbhullar.com
 
-Personal developer workspace site built with Next.js and deployed on Vercel.
+Personal developer workspace site built with Next.js, backed by Supabase, deployed on Vercel.
 
 ---
 
@@ -10,7 +10,8 @@ Personal developer workspace site built with Next.js and deployed on Vercel.
 - **Styling:** Tailwind CSS v4
 - **Language:** TypeScript
 - **Animations:** Framer Motion
-- **Storage:** Vercel Blob (dynamic content)
+- **Backend:** Supabase — Postgres (content), Storage (files), Auth (single admin account)
+- **Validation:** zod (all admin API routes)
 - **Hosting:** Vercel
 
 ---
@@ -21,6 +22,7 @@ Personal developer workspace site built with Next.js and deployed on Vercel.
 
 - Node.js **v18 or higher** (developed on v24)
 - npm
+- A Supabase project (see [Supabase Setup](#supabase-setup) below)
 
 ### Install
 
@@ -33,14 +35,13 @@ npm install
 Create a `.env.local` file in the root:
 
 ```env
-# Required for the admin panel
-ADMIN_PASSWORD=yourchosenpassword
-
-# Required for dynamic content + file uploads (get from Vercel dashboard → Storage → Blob)
-BLOB_READ_WRITE_TOKEN=vercel_blob_rw_xxxxxxxxxxxxxxxx
+NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon / public key>
+SUPABASE_SERVICE_ROLE_KEY=<service role key — server-only, never commit or expose>
 ```
 
-Without `BLOB_READ_WRITE_TOKEN`, the site falls back to the static content files in `content/`. The admin panel will return 503 on save.
+All three come from your Supabase project's **Settings → API** page. There is no static-content
+fallback — the site will not build or run without these set.
 
 ### Run Dev Server
 
@@ -55,6 +56,25 @@ Open [http://localhost:3000](http://localhost:3000).
 ```bash
 npm run build
 ```
+
+---
+
+## Supabase Setup
+
+If starting from a fresh Supabase project (one already exists for this site — this is only needed if
+rebuilding from scratch):
+
+1. Run the schema migration: `supabase/migrations/0001_init_schema.sql` against your project's
+   Postgres database. Creates all 10 content tables with RLS enabled (public read, writes restricted
+   to a single admin email), plus the 4 Storage buckets (`profile`, `projects`, `videos`, `resumes`)
+   with matching public-read / admin-write policies. Change the hardcoded `bhullararchit@gmail.com`
+   in the migration file if setting this up for a different admin email.
+2. Create the admin user: **Authentication → Users → Add user**. Set the email to match what's
+   hardcoded in `proxy.ts` and `lib/supabase/server.ts` (`ADMIN_EMAIL` constant in both), set a
+   password directly, and make sure **Auto Confirm User** is checked.
+3. (Recommended) **Authentication → Sign In / Providers → Email → disable "Allow new users to sign
+   up"** — RLS already restricts writes to the one admin email regardless, but this closes the door
+   on any account existing at all besides that one.
 
 ---
 
@@ -77,63 +97,33 @@ Local changes
 
 Pull requests automatically get **preview deployments** — a unique URL you can share before merging.
 
----
+### Environment Variables in Vercel
 
-## One-Time Setup: Connect GitHub to Vercel
+Add the same three variables from `.env.local` in **Settings → Environment Variables**, and:
 
-### 1. Import project into Vercel
-
-1. Go to [vercel.com/new](https://vercel.com/new)
-2. Click **Import Git Repository**
-3. Select `Architbh007/architbhullar`
-4. Vercel auto-detects Next.js — leave all build settings as default
-5. Click **Deploy**
-
-Vercel will now rebuild and redeploy automatically on every push to `main`.
-
-### 2. Set production branch to `master` in Vercel
-
-When importing, Vercel will ask which branch to deploy. Select **master**. If already imported, go to **Settings → Git → Production Branch** and set it to `master`.
-
-### 3. Add Environment Variables in Vercel
-
-1. Go to your project in the Vercel dashboard
-2. **Settings → Environment Variables**
-3. Add the following:
-
-| Name | Value | Environment |
-|------|-------|-------------|
-| `ADMIN_PASSWORD` | your chosen password | Production, Preview |
-| `BLOB_READ_WRITE_TOKEN` | from Vercel Storage → Blob | Production, Preview |
-
-4. **Redeploy** after adding variables (Settings → Deployments → Redeploy)
-
-### 4. Set Up Vercel Blob Storage
-
-1. In the Vercel dashboard → **Storage → Create Database → Blob**
-2. Name it anything (e.g. `archit-blob`)
-3. Copy the `BLOB_READ_WRITE_TOKEN` and add it as an environment variable (step above)
-4. After the first deploy, visit `/admin`, log in, and click **Save & Publish** to seed the blob with your content
-
-### 5. Connect Custom Domain
-
-1. Vercel dashboard → **Settings → Domains**
-2. Add `architbhullar.com`
-3. Vercel gives you DNS records — go to your domain registrar and add them:
-   - **A record:** `@` → Vercel's IP (shown in dashboard)
-   - **CNAME record:** `www` → `cname.vercel-dns.com`
-4. DNS propagation takes 5–30 minutes
-5. Vercel auto-provisions an SSL certificate
+- **They must be checked for the Production environment specifically**, not only
+  Preview/Development. `/projects`, `/skills`, `/experience`, `/contact` are statically prerendered
+  at build time, and the build needs `NEXT_PUBLIC_SUPABASE_URL` to do that — missing or
+  wrong-scoped env vars fail the build with `Error: supabaseUrl is required.` (this has happened once
+  already on this project).
+- `SUPABASE_SERVICE_ROLE_KEY` should be added as a **Sensitive** variable — note Vercel won't let a
+  Sensitive variable target the Development environment, only Production + Preview.
+- **Adding or changing an env var does not itself trigger a rebuild.** Deploy (or redeploy) after
+  saving.
 
 ---
 
 ## Admin Panel
 
-The site has a password-protected admin panel at `/admin` for updating content without touching code.
+The site has a real login (Supabase Auth, single account) protected admin panel at `/admin` for
+updating content without touching code or the Supabase dashboard.
 
 - **URL:** `yourdomain.com/admin`
-- **Password:** whatever you set as `ADMIN_PASSWORD`
+- **Login:** the one admin email + its password (set directly in Supabase Authentication → Users, or
+  via the "Reset Password" action there if you forget it — no email link required)
 - Tabs: Profile, Story, Projects, Skills, Experience, Socials & Resume
+- Every tab's "Save & Publish" writes straight to Postgres/Storage; the public site reflects changes
+  within ~60 seconds (ISR revalidation)
 
 ---
 
@@ -145,6 +135,7 @@ The site has a password-protected admin panel at `/admin` for updating content w
 4. Click **Build Logs** to see the full error output
 
 Common causes:
+- `Error: supabaseUrl is required.` → Supabase env vars missing or not scoped to Production, see above
 - Missing environment variable → add it in Vercel dashboard and redeploy
 - TypeScript error → fix locally, push again
 - `npm install` failure → check `package.json` for version conflicts
@@ -157,17 +148,35 @@ Common causes:
 app/                  # Next.js App Router pages
   page.tsx            # / (About view)
   [view]/page.tsx     # /projects, /skills, /experience, /contact
-  admin/              # Admin panel (password protected)
-  api/admin/          # Admin API routes (content, upload, login)
+  admin/              # Admin panel (Supabase Auth protected)
+    login/            # Email + password sign-in
+    set-password/     # Handles Supabase password-reset/invite email links
+  api/admin/          # Admin API routes — one per resource, zod-validated
 
 components/
   Workspace.tsx       # Main shell (nav + view switching)
   views/              # One component per view
 
-content/              # Default content (TypeScript files, used as fallback)
+content/
+  stack.ts             # About page's tech-stack table — the one thing still a static file
+
 lib/
-  content.ts          # getContent() — reads Blob or falls back to TS files
+  content.ts            # getContent() — reads all Supabase tables, assembles SiteContent
+  validation.ts          # zod schemas for every admin API payload
+  revalidate.ts           # revalidateAll() — called after every admin write
+  compressImage.ts         # client-side image downscale/compress before upload
+  supabase/
+    public.ts              # anon client, no cookies — used by getContent()
+    server.ts               # cookie-aware client + requireAdmin() — used by API routes
+    admin.ts                 # service-role client — bypasses RLS
+    browser.ts                # browser client — login/set-password pages
+    middleware.ts               # session helper used by proxy.ts
+
 types/
-  index.ts            # All shared TypeScript types
-proxy.ts              # Auth middleware protecting /admin routes
+  index.ts              # All shared TypeScript types
+
+supabase/
+  migrations/            # SQL schema + RLS + storage bucket definitions
+
+proxy.ts              # Supabase-session-based auth guard for /admin/* and /api/admin/*
 ```
