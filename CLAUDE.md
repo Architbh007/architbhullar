@@ -52,9 +52,14 @@ types/
 it isn't editable in the admin panel, so there was no reason to move it to Postgres.
 
 **Storage buckets** (all public-read, admin-write-only): `profile`, `projects`, `videos`, `resumes`.
-Every upload goes through `POST /api/admin/upload` (generic) or `POST /api/admin/resume` (resume —
-always overwrites the same storage path, so there's never more than one active file), both of which
-return a public URL that gets stored in Postgres. No binary ever touches Postgres directly.
+Every file uploads **directly from the browser to Supabase Storage** via `lib/uploadToStorage.ts`
+(images/video) or inline in `SocialsTab`'s resume handler — never through our own API routes. This is
+required, not just an optimization: Vercel Serverless Functions cap request bodies at ~4.5MB (a
+platform limit, not configurable via Next.js), which any real video and some larger images/PDFs would
+exceed. Storage RLS already restricts writes to the logged-in admin, so the browser's existing session
+is sufficient. After a direct upload, a small JSON-only API call (`POST /api/admin/resume` for resumes;
+projects/skills/etc. just carry the returned URL into their normal PUT payload) records the result in
+Postgres. No binary ever touches our server or Postgres directly.
 
 `projects.banner` / `projects.video` (as consumed by the frontend `Project` type) are derived at read
 time from `project_media` rows with `kind='cover'` / `kind='video'` — there's no `banner`/`video`

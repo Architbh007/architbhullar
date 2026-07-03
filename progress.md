@@ -49,8 +49,8 @@
 - [x] `/admin` — full content editor: Profile, Story, Projects, Skills, Experience, Socials & Resume tabs
 - [x] `proxy.ts` — Supabase-session-based protection for `/admin/*` and `/api/admin/*`, plus every
       admin route independently re-checks auth (not relying on proxy alone)
-- [x] 9 admin API routes, each zod-validated: `profile`, `timeline`, `experience`, `skills`,
-      `projects`, `social-links`, `contact-information`, `resume` (upload), `upload` (generic)
+- [x] 8 admin API routes, each zod-validated: `profile`, `timeline`, `experience`, `skills`,
+      `projects`, `social-links`, `contact-information`, `resume` (metadata only, see below)
 - [x] Per-tab "Save & Publish" — each tab now PUTs to its own resource endpoint instead of one big blob
 - [x] Toast notifications (replaced the old inline status line)
 - [x] Client-side image compression before upload
@@ -61,6 +61,15 @@
 - [x] Rate limiting on `/api/admin/login` — 5 failed attempts per IP per 15 minutes → 429, tracked via
       a `login_attempts` Postgres table (no new external service like Redis needed), self-cleans
       entries older than 24h, resets on a successful login
+- [x] **Fixed: video uploads failing in production.** Root cause — Vercel Serverless Functions cap
+      request bodies at ~4.5MB (a hard platform limit, not configurable), so any video routed through
+      our own `/api/admin/upload` route got rejected with `413 FUNCTION_PAYLOAD_TOO_LARGE` before our
+      code even ran. Reproduced directly against production (1MB succeeded, 5MB/10MB both 413'd).
+      Fixed by uploading images/video/resumes straight from the browser to Supabase Storage
+      (`lib/uploadToStorage.ts`), bypassing our server entirely — Storage RLS already restricts writes
+      to the logged-in admin. The old generic `/api/admin/upload` route is deleted (no longer used);
+      `/api/admin/resume` now only records the filename/timestamp after the browser's direct upload
+      completes, rather than handling the file itself.
 - [x] **Admin login verified working locally** — signed in successfully at `localhost:3000/admin/login`
       with `bhullararchit@gmail.com`. (Getting here took two failed Supabase email-link attempts and
       a hit rate limit; password was ultimately set directly via the Supabase admin API, chosen and

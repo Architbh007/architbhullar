@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import type { SiteContent, StoryEntry, Project, SkillGroup, ExperienceItem } from '@/types'
 import { compressImage } from '@/lib/compressImage'
+import { uploadToStorage } from '@/lib/uploadToStorage'
+import { createClient as createBrowserSupabaseClient } from '@/lib/supabase/browser'
 
 type Tab = 'profile' | 'story' | 'projects' | 'skills' | 'experience' | 'socials'
 
@@ -271,18 +273,11 @@ function ImageUpload({ onUrl, label = '↑ Upload image', folder = 'banners' }: 
     setStatus(null)
     try {
       const compressed = await compressImage(file)
-      const formData = new FormData()
-      formData.append('file', compressed)
-      const res = await fetch(`/api/admin/upload?folder=${folder}`, { method: 'POST', body: formData })
-      const data = await res.json()
-      if (res.ok) {
-        onUrl(data.url)
-        setStatus('✓ uploaded')
-      } else {
-        setStatus(`Error: ${data.error}`)
-      }
-    } catch {
-      setStatus('Upload failed')
+      const url = await uploadToStorage(compressed, folder)
+      onUrl(url)
+      setStatus('✓ uploaded')
+    } catch (err) {
+      setStatus(`Error: ${err instanceof Error ? err.message : 'Upload failed'}`)
     }
     setUploading(false)
     e.target.value = ''
@@ -313,19 +308,12 @@ function VideoUpload({ onUrl }: { onUrl: (url: string) => void }) {
     if (!file) return
     setUploading(true)
     setStatus(null)
-    const formData = new FormData()
-    formData.append('file', file)
     try {
-      const res = await fetch('/api/admin/upload?folder=videos', { method: 'POST', body: formData })
-      const data = await res.json()
-      if (res.ok) {
-        onUrl(data.url)
-        setStatus('✓ uploaded')
-      } else {
-        setStatus(`Error: ${data.error}`)
-      }
-    } catch {
-      setStatus('Upload failed')
+      const url = await uploadToStorage(file, 'videos')
+      onUrl(url)
+      setStatus('✓ uploaded')
+    } catch (err) {
+      setStatus(`Error: ${err instanceof Error ? err.message : 'Upload failed'}`)
     }
     setUploading(false)
     e.target.value = ''
@@ -678,11 +666,22 @@ function SocialsTab({ content, onChange }: { content: SiteContent; onChange: (c:
     setUploading(true)
     setUploadStatus(null)
 
-    const formData = new FormData()
-    formData.append('file', file)
-
     try {
-      const res = await fetch('/api/admin/resume', { method: 'POST', body: formData })
+      if (file.type !== 'application/pdf') throw new Error('Resume must be a PDF file')
+
+      // Uploaded directly from the browser — same reason as videos/images,
+      // Vercel's serverless function body-size cap would reject larger PDFs.
+      const supabase = createBrowserSupabaseClient()
+      const { error: uploadError } = await supabase.storage
+        .from('resumes')
+        .upload('resume.pdf', file, { upsert: true, contentType: file.type })
+      if (uploadError) throw new Error(uploadError.message)
+
+      const res = await fetch('/api/admin/resume', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename: file.name }),
+      })
       const data = await res.json()
 
       if (res.ok) {
@@ -691,8 +690,8 @@ function SocialsTab({ content, onChange }: { content: SiteContent; onChange: (c:
       } else {
         setUploadStatus(`Error: ${data.error}`)
       }
-    } catch {
-      setUploadStatus('Upload failed — network error')
+    } catch (err) {
+      setUploadStatus(err instanceof Error ? err.message : 'Upload failed — network error')
     }
 
     setUploading(false)
