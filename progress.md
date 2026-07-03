@@ -26,6 +26,10 @@
       Book-a-call card, bigger name typography on About, animated link underlines, skeleton loading
       state in admin (was plain "Loading content..." text) — verified visually via Playwright
       screenshots across all 5 public views, zero console errors
+- [x] Skills and Experience given the same card treatment Projects has (border + subtle background per
+      item) for visual consistency across the site. (A terminal-style corner-bracket decoration was
+      also tried on the photo/cards/Book-a-call box and explicitly rejected by the user — reverted
+      same session, not present in the final code.)
 
 ### Backend (Supabase)
 
