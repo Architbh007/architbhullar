@@ -1,7 +1,7 @@
 # progress.md
 
-## Status: Backend migrated from Vercel Blob to Supabase, admin login working locally.
-## BLOCKED: production deployment on Vercel is currently failing to build — see "Active blocker" below.
+## Status: Backend migration complete and verified end-to-end in production.
+## Admin login works both locally and on architbhullar.com.
 
 ---
 
@@ -60,56 +60,33 @@
 - [x] All views accept content as props (no direct imports from content files in components)
 - [x] ISR with 60s revalidation on all routes — confirmed still static/prerendered after the migration
 - [x] `supabase/migrations/0001_init_schema.sql` — schema + RLS + storage bucket definitions
-- [x] `scripts/migrate-to-supabase.ts` — one-off content migration, already run against production
 - [x] `@vercel/blob` dependency removed
 - [x] `CLAUDE.md` — updated for the new architecture
+- [x] Old `content/profile.ts`, `story.ts`, `projects.ts`, `skills.ts`, `experience.ts`, `socials.ts`,
+      and `scripts/migrate-to-supabase.ts` deleted — all fully superseded by Supabase, nothing else
+      referenced them (`content/stack.ts` kept — still in active use, not editable in admin)
 
 ---
 
-## Active blocker: production build failing on Vercel
+## Resolved: production Vercel build
 
-`architbhullar.com` is currently still serving the **old**, pre-migration build (old password-only
-login page, old unauthenticated `/api/admin/content` route) — not because old code is deliberately
-still live, but because **every deployment attempt of the new code has failed to build**, and Vercel
-falls back to serving the last successful (old) deployment instead of taking the site down.
-
-Confirmed via the build log for commit `03e5831`:
-
-```
-Error occurred prerendering page "/projects".
-Error: supabaseUrl is required.
-Export encountered an error on /[view]/page: /projects, exiting the build.
-```
-
-**Root cause:** `NEXT_PUBLIC_SUPABASE_URL` was not available in the build environment when this ran.
-`getContent()` needs it at build time because `/projects`, `/skills`, `/experience`, `/contact` are
-statically prerendered (SSG, per `generateStaticParams` in `app/[view]/page.tsx`).
-
-**What we know:** the user has since added the Supabase env vars in the Vercel dashboard. Not yet
-confirmed:
-1. Whether `NEXT_PUBLIC_SUPABASE_URL` (exact name, no typo/whitespace) is checked for the
-   **Production** environment specifically, not only Preview/Development.
-2. Whether a fresh deployment has actually been triggered *after* saving the env vars — adding an
-   env var alone does not rebuild anything.
-
-**Next step:** verify env var scope in Vercel, then trigger a redeploy and confirm the build log shows
-no `supabaseUrl is required` error and the deployed login page has an Email field (a quick way to
-visually confirm the new code is actually live, vs. the stale fallback).
+Was failing with `Error: supabaseUrl is required.` while prerendering `/projects`. Root cause,
+confirmed by checking the Vercel project directly via the API: the Supabase env vars had never
+actually been added to the Vercel project at all (only old `ADMIN_PASSWORD` / Blob-related vars were
+present, despite believing otherwise). Fixed by adding `NEXT_PUBLIC_SUPABASE_URL`,
+`NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (production + preview, service role key
+also needs `sensitive` type which can't target `development`), removing the four old unused vars, and
+triggering a fresh deployment. Verified on `architbhullar.com`: new Email+Password login form is live,
+`/api/admin/content` correctly 401s unauthenticated, and login itself works with the real account.
 
 ---
 
 ## Pending
 
-- [ ] Resolve the Vercel build failure above — this is what's actually blocking production.
-- [ ] Once production is live: verify `architbhullar.com/admin/login` shows the Email+Password form
-      (not the old password-only one) and that login works there too, not just locally.
-- [ ] Old `content/profile.ts`, `story.ts`, `projects.ts`, `skills.ts`, `experience.ts`, `socials.ts`
-      are now dead code (nothing imports them except the already-run migration script) — left in
-      place pending an explicit go-ahead to delete them.
-- [ ] `scripts/migrate-to-supabase.ts` is similarly done-its-job — fine to delete once the dead
-      `content/*.ts` files above go, since it depends on them.
 - [ ] `README.md` still describes the old Vercel Blob deployment steps — not yet updated.
 - [ ] Add real resume PDF via the new admin resume-upload feature (no `public/resume.pdf` ever existed).
+- [ ] Revoke the temporary Vercel API token used to diagnose/fix the env var issue
+      (vercel.com/account/tokens) — no longer needed now that the fix is confirmed working.
 
 ---
 
