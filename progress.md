@@ -1,7 +1,6 @@
 # progress.md
 
-## Status: Backend migration complete and verified end-to-end in production.
-## Admin login works both locally and on architbhullar.com.
+## Status: Migration complete. Verified end-to-end in production — content, auth, uploads, deploys.
 
 ---
 
@@ -92,24 +91,38 @@
 
 ---
 
-## Resolved: production Vercel build
+## Resolved incidents (kept for reference — not active issues)
 
-Was failing with `Error: supabaseUrl is required.` while prerendering `/projects`. Root cause,
-confirmed by checking the Vercel project directly via the API: the Supabase env vars had never
-actually been added to the Vercel project at all (only old `ADMIN_PASSWORD` / Blob-related vars were
-present, despite believing otherwise). Fixed by adding `NEXT_PUBLIC_SUPABASE_URL`,
-`NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (production + preview, service role key
-also needs `sensitive` type which can't target `development`), removing the four old unused vars, and
-triggering a fresh deployment. Verified on `architbhullar.com`: new Email+Password login form is live,
-`/api/admin/content` correctly 401s unauthenticated, and login itself works with the real account.
+**Production build failing** — `Error: supabaseUrl is required.` while prerendering `/projects`. Root
+cause: the Supabase env vars had never actually been added to the Vercel project (only old
+`ADMIN_PASSWORD` / Blob-related vars were present). Fixed by adding the 3 Supabase env vars (production
++ preview scope; service role key needs `sensitive` type, which can't target `development`), removing
+the 4 old unused vars, and redeploying.
+
+**Production silently never updating after that** — every push built successfully but never appeared
+on `architbhullar.com`. Root cause: Vercel's Production Branch setting was `main`, a stale/abandoned
+branch from before this migration, while all real work was pushed to `master` — a Vercel-only setting
+completely unrelated to GitHub's "default branch." Fixed by renaming `master` → `main` locally and
+pushing, reconciling the two so Vercel's existing `main` setting now points at the real code. Confirmed
+the auto-deploy pipeline works correctly going forward (a normal push now triggers a proper
+`production` target deployment with no manual intervention).
+
+**Video/image/resume uploads failing (413 in production)** — Vercel Serverless Functions cap request
+bodies at ~4.5MB, not configurable via Next.js. Reproduced directly against production (1MB fine,
+5MB/10MB both `413 FUNCTION_PAYLOAD_TOO_LARGE`). Fixed by uploading directly from the browser to
+Supabase Storage (`lib/uploadToStorage.ts`), bypassing our server's request entirely; Storage RLS
+already restricts writes to the logged-in admin. Confirmed working — user successfully uploaded a real
+resume PDF via the new flow.
 
 ---
 
 ## Pending
 
-- [ ] Add real resume PDF via the new admin resume-upload feature (no `public/resume.pdf` ever existed).
-- [ ] Revoke the temporary Vercel API token used to diagnose/fix the env var issue
-      (vercel.com/account/tokens) — no longer needed now that the fix is confirmed working.
+- [ ] Revoke the temporary Vercel API token (vercel.com/account/tokens) — no longer needed.
+- [ ] Delete the old `master` branch on GitHub — blocked until GitHub's default branch is switched to
+      `main` first (**github.com/Architbh007/architbhullar → Settings → Branches → Default branch**),
+      since GitHub refuses to delete whatever branch is currently marked default. Not urgent — `main`
+      is already what Vercel deploys from, this is just cleanup.
 
 ---
 

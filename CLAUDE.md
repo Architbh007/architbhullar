@@ -145,6 +145,11 @@ without them.
    saving them.
 4. Deploy, then check the build log for the `supabaseUrl is required` error specifically if the
    build fails — that error means the env vars weren't actually visible to this particular build.
+5. **Vercel's Settings → Git → Production Branch must match the branch actually pushed to (`main`).**
+   This is a Vercel-only setting, unrelated to GitHub's "default branch" — if it's wrong, every push
+   still builds successfully but only ever becomes a preview deployment, and `architbhullar.com`
+   silently never updates with no error anywhere. This happened once already (set to `main` while all
+   work was on `master`) and took a while to trace back to this setting rather than a code problem.
 
 Existing content is already live in Supabase — nothing to seed post-deploy.
 

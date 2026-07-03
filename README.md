@@ -88,7 +88,7 @@ This project uses **Vercel's built-in CI/CD** — no GitHub Actions needed.
 Local changes
   → git add .
   → git commit -m "update"
-  → git push origin master
+  → git push origin main
   → GitHub receives the push
   → Vercel detects the push automatically
   → Vercel builds the project
@@ -110,6 +110,16 @@ Add the same three variables from `.env.local` in **Settings → Environment Var
   Sensitive variable target the Development environment, only Production + Preview.
 - **Adding or changing an env var does not itself trigger a rebuild.** Deploy (or redeploy) after
   saving.
+
+### Production Branch must match the branch you actually push to
+
+Vercel's **Settings → Git → Production Branch** is a Vercel-only setting, completely separate from
+GitHub's "default branch." If they don't match your actual working branch, every push still builds
+successfully but only ever becomes a *preview* deployment — `architbhullar.com` silently never
+updates, with no error anywhere to tell you why. This happened once already (Vercel's Production
+Branch was `main` while all work was pushed to `master`) and cost a lot of confused debugging before
+being traced to a mismatched setting rather than a code or env var problem. This repo's branch is
+`main` — keep Vercel's Production Branch set to `main` to match.
 
 ---
 
