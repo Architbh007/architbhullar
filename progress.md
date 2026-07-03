@@ -26,10 +26,12 @@
       Book-a-call card, bigger name typography on About, animated link underlines, skeleton loading
       state in admin (was plain "Loading content..." text) — verified visually via Playwright
       screenshots across all 5 public views, zero console errors
-- [x] Skills and Experience given the same card treatment Projects has (border + subtle background per
-      item) for visual consistency across the site. (A terminal-style corner-bracket decoration was
-      also tried on the photo/cards/Book-a-call box and explicitly rejected by the user — reverted
-      same session, not present in the final code.)
+- [x] Experience given the same card treatment Projects has (border + subtle background per entry,
+      timeline connector line kept). Skills got the same treatment briefly, but the user asked for it
+      to be removed from Skills specifically — reverted back to its plain row layout, Experience and
+      Projects unaffected. (A terminal-style corner-bracket decoration was also tried on the
+      photo/cards/Book-a-call box and explicitly rejected — reverted same session, not present in the
+      final code.)
 
 ### Backend (Supabase)
 
