@@ -185,7 +185,7 @@ export function Workspace({ content }: Props) {
 
           {view === 'skills' && <SkillsView skills={content.skills} />}
           {view === 'experience' && <ExperienceView experience={content.experience} />}
-          {view === 'contact' && <ContactView socials={content.socials} />}
+          {view === 'contact' && <ContactView socials={content.socials} contactInformation={content.contactInformation} />}
         </div>
       </main>
     </div>

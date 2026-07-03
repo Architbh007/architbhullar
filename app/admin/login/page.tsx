@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 export default function AdminLogin() {
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -17,13 +18,14 @@ export default function AdminLogin() {
     const res = await fetch('/api/admin/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password }),
+      body: JSON.stringify({ email, password }),
     })
 
     if (res.ok) {
       router.push('/admin')
+      router.refresh()
     } else {
-      setError('Incorrect password.')
+      setError('Incorrect email or password.')
       setLoading(false)
     }
   }
@@ -39,13 +41,33 @@ export default function AdminLogin() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="font-mono text-[11px] text-zinc-600 uppercase tracking-widest block mb-2">
+              Email
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoFocus
+              autoComplete="username"
+              className="w-full bg-transparent border text-zinc-200 text-sm px-3 py-2 rounded-md outline-none font-mono"
+              style={{
+                borderColor: 'rgba(255,255,255,0.1)',
+                background: 'rgba(255,255,255,0.03)',
+              }}
+              onFocus={(e) => { e.currentTarget.style.borderColor = 'rgba(139,92,246,0.5)' }}
+              onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)' }}
+            />
+          </div>
+
+          <div>
+            <label className="font-mono text-[11px] text-zinc-600 uppercase tracking-widest block mb-2">
               Password
             </label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              autoFocus
+              autoComplete="current-password"
               className="w-full bg-transparent border text-zinc-200 text-sm px-3 py-2 rounded-md outline-none font-mono"
               style={{
                 borderColor: 'rgba(255,255,255,0.1)',
@@ -62,7 +84,7 @@ export default function AdminLogin() {
 
           <button
             type="submit"
-            disabled={loading || !password}
+            disabled={loading || !email || !password}
             className="w-full py-2 text-sm font-mono rounded-md transition-colors disabled:opacity-40"
             style={{ background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.3)', color: '#a78bfa' }}
           >

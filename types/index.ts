@@ -75,6 +75,13 @@ export interface Socials {
   resume: string
 }
 
+export interface ContactInformation {
+  availabilityBlurb: string
+  extraBlurb: string
+  responseNote: string
+  calLink: string
+}
+
 export interface SiteContent {
   profile: Profile
   story: StoryEntry[]
@@ -83,4 +90,5 @@ export interface SiteContent {
   skills: SkillGroup[]
   experience: ExperienceItem[]
   socials: Socials
+  contactInformation: ContactInformation
 }

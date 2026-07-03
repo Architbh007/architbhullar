@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       { hostname: 'picsum.photos' },
-      { hostname: '*.public.blob.vercel-storage.com' },
+      { hostname: 'golojiscyvxwxehpkqyz.supabase.co' },
     ],
   },
 };

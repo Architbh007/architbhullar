@@ -1,26 +1,30 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { getSessionUser } from '@/lib/supabase/middleware'
 
-export function proxy(request: NextRequest) {
+const ADMIN_EMAIL = 'bhullararchit@gmail.com'
+const PUBLIC_ADMIN_PATHS = ['/admin/login', '/admin/set-password']
+
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  if (!pathname.startsWith('/admin')) return NextResponse.next()
-  if (pathname === '/admin/login') return NextResponse.next()
+  if (!pathname.startsWith('/admin') && !pathname.startsWith('/api/admin')) {
+    return NextResponse.next()
+  }
+  if (PUBLIC_ADMIN_PATHS.includes(pathname)) return NextResponse.next()
   if (pathname.startsWith('/api/admin/login')) return NextResponse.next()
 
-  const adminPassword = process.env.ADMIN_PASSWORD
-  if (!adminPassword) {
-    return new NextResponse('Admin not configured. Set ADMIN_PASSWORD env var.', { status: 503 })
-  }
+  const { user, response } = await getSessionUser(request)
 
-  const sessionCookie = request.cookies.get('admin-session')?.value
-
-  if (sessionCookie !== adminPassword) {
+  if (!user || user.email !== ADMIN_EMAIL) {
+    if (pathname.startsWith('/api/admin')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
     const loginUrl = new URL('/admin/login', request.url)
     return NextResponse.redirect(loginUrl)
   }
 
-  return NextResponse.next()
+  return response
 }
 
 export const config = {

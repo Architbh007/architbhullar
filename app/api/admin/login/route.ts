@@ -1,22 +1,19 @@
 import { NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
 
 export async function POST(request: Request) {
-  const { password } = await request.json()
-  const adminPassword = process.env.ADMIN_PASSWORD
+  const { email, password } = await request.json()
 
-  if (!adminPassword || password !== adminPassword) {
-    return NextResponse.json({ error: 'Invalid password' }, { status: 401 })
+  if (!email || !password) {
+    return NextResponse.json({ error: 'Email and password are required' }, { status: 400 })
   }
 
-  const response = NextResponse.json({ ok: true })
+  const supabase = await createClient()
+  const { error } = await supabase.auth.signInWithPassword({ email, password })
 
-  response.cookies.set('admin-session', adminPassword, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    maxAge: 60 * 60 * 24 * 7, // 7 days
-    path: '/',
-  })
+  if (error) {
+    return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 })
+  }
 
-  return response
+  return NextResponse.json({ ok: true })
 }

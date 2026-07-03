@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import type { SiteContent, StoryEntry, Project, SkillGroup, ExperienceItem } from '@/types'
+import { compressImage } from '@/lib/compressImage'
 
 type Tab = 'profile' | 'story' | 'projects' | 'skills' | 'experience' | 'socials'
 
@@ -96,6 +97,32 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   )
 }
 
+function Toast({ toast, onDismiss }: { toast: { type: 'success' | 'error'; msg: string } | null; onDismiss: () => void }) {
+  useEffect(() => {
+    if (!toast) return
+    const t = setTimeout(onDismiss, 3500)
+    return () => clearTimeout(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [toast])
+
+  if (!toast) return null
+
+  return (
+    <div
+      style={{
+        position: 'fixed', bottom: '20px', right: '20px', zIndex: 50,
+        padding: '10px 16px', borderRadius: '8px', fontSize: '12px', fontFamily: 'monospace',
+        background: toast.type === 'success' ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)',
+        border: `1px solid ${toast.type === 'success' ? 'rgba(52,211,153,0.3)' : 'rgba(248,113,113,0.3)'}`,
+        color: toast.type === 'success' ? '#34d399' : '#f87171',
+        boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+      }}
+    >
+      {toast.msg}
+    </div>
+  )
+}
+
 // ── Tab editors ──────────────────────────────────────────────
 
 function ProfileTab({ content, onChange }: { content: SiteContent; onChange: (c: SiteContent) => void }) {
@@ -142,6 +169,14 @@ function ProfileTab({ content, onChange }: { content: SiteContent; onChange: (c:
       <div>
         <Label>Availability status</Label>
         <Input value={p.availability} onChange={(v) => set('availability', v)} />
+      </div>
+      <div>
+        <Label>Photo</Label>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '6px' }}>
+          <ImageUpload onUrl={(url) => set('photo', url)} label="↑ Upload photo" folder="profile" />
+          {p.photo && <span style={{ fontSize: '11px', color: '#52525b', fontFamily: 'monospace' }}>✓ photo set</span>}
+        </div>
+        <Input value={p.photo} onChange={(v) => set('photo', v)} placeholder="or paste image URL" />
       </div>
       <Section title="About me paragraphs">
         {p.bioExtended.map((para, i) => (
@@ -223,7 +258,9 @@ function StoryTab({ content, onChange }: { content: SiteContent; onChange: (c: S
   )
 }
 
-function ImageUpload({ onUrl, label = '↑ Upload image' }: { onUrl: (url: string) => void; label?: string }) {
+function ImageUpload({ onUrl, label = '↑ Upload image', folder = 'banners' }: {
+  onUrl: (url: string) => void; label?: string; folder?: string
+}) {
   const [uploading, setUploading] = useState(false)
   const [status, setStatus] = useState<string | null>(null)
 
@@ -232,10 +269,11 @@ function ImageUpload({ onUrl, label = '↑ Upload image' }: { onUrl: (url: strin
     if (!file) return
     setUploading(true)
     setStatus(null)
-    const formData = new FormData()
-    formData.append('file', file)
     try {
-      const res = await fetch('/api/admin/upload?folder=banners', { method: 'POST', body: formData })
+      const compressed = await compressImage(file)
+      const formData = new FormData()
+      formData.append('file', compressed)
+      const res = await fetch(`/api/admin/upload?folder=${folder}`, { method: 'POST', body: formData })
       const data = await res.json()
       if (res.ok) {
         onUrl(data.url)
@@ -625,10 +663,13 @@ function ExperienceTab({ content, onChange }: { content: SiteContent; onChange: 
 
 function SocialsTab({ content, onChange }: { content: SiteContent; onChange: (c: SiteContent) => void }) {
   const s = content.socials
+  const c = content.contactInformation
   const [uploading, setUploading] = useState(false)
   const [uploadStatus, setUploadStatus] = useState<string | null>(null)
 
   const set = (key: string, val: string) => onChange({ ...content, socials: { ...s, [key]: val } })
+  const setContact = (key: string, val: string) =>
+    onChange({ ...content, contactInformation: { ...c, [key]: val } })
 
   const handleResumeUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -641,7 +682,7 @@ function SocialsTab({ content, onChange }: { content: SiteContent; onChange: (c:
     formData.append('file', file)
 
     try {
-      const res = await fetch('/api/admin/upload', { method: 'POST', body: formData })
+      const res = await fetch('/api/admin/resume', { method: 'POST', body: formData })
       const data = await res.json()
 
       if (res.ok) {
@@ -707,8 +748,30 @@ function SocialsTab({ content, onChange }: { content: SiteContent; onChange: (c:
         </div>
 
         <p style={{ marginTop: '10px', fontSize: '11px', color: '#3f3f46', fontFamily: 'monospace' }}>
-          After uploading, click "Save &amp; Publish" above to make it live.
+          Uploads go live immediately — no need to click Save for the resume file itself.
         </p>
+      </div>
+
+      <div style={{ paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+        <Label>Contact page copy</Label>
+        <div style={{ display: 'grid', gap: '12px' }}>
+          <div>
+            <Label>Availability blurb</Label>
+            <Textarea value={c.availabilityBlurb} onChange={(v) => setContact('availabilityBlurb', v)} rows={4} />
+          </div>
+          <div>
+            <Label>Extra blurb</Label>
+            <Textarea value={c.extraBlurb} onChange={(v) => setContact('extraBlurb', v)} rows={3} />
+          </div>
+          <div>
+            <Label>Response time note</Label>
+            <Input value={c.responseNote} onChange={(v) => setContact('responseNote', v)} placeholder="Fastest response via email — I typically reply within 24 hours." />
+          </div>
+          <div>
+            <Label>Cal.com booking link</Label>
+            <Input value={c.calLink} onChange={(v) => setContact('calLink', v)} placeholder="https://cal.com/username/coffee-chat" />
+          </div>
+        </div>
       </div>
     </div>
   )
@@ -716,12 +779,24 @@ function SocialsTab({ content, onChange }: { content: SiteContent; onChange: (c:
 
 // ── Main admin page ──────────────────────────────────────────
 
+const SAVE_REQUESTS: Record<Tab, (content: SiteContent) => { url: string; body: unknown }[]> = {
+  profile: (c) => [{ url: '/api/admin/profile', body: c.profile }],
+  story: (c) => [{ url: '/api/admin/timeline', body: c.story }],
+  projects: (c) => [{ url: '/api/admin/projects', body: c.projects }],
+  skills: (c) => [{ url: '/api/admin/skills', body: c.skills }],
+  experience: (c) => [{ url: '/api/admin/experience', body: c.experience }],
+  socials: (c) => [
+    { url: '/api/admin/social-links', body: c.socials },
+    { url: '/api/admin/contact-information', body: c.contactInformation },
+  ],
+}
+
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<Tab>('profile')
   const [content, setContent] = useState<SiteContent | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [status, setStatus] = useState<{ type: 'success' | 'error'; msg: string } | null>(null)
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; msg: string } | null>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -734,21 +809,26 @@ export default function AdminPage() {
   const save = async () => {
     if (!content) return
     setSaving(true)
-    setStatus(null)
+    setToast(null)
     try {
-      const res = await fetch('/api/admin/content', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(content),
-      })
-      if (res.ok) {
-        setStatus({ type: 'success', msg: 'Saved — live site updated.' })
+      const requests = SAVE_REQUESTS[activeTab](content)
+      const results = await Promise.all(requests.map((req) =>
+        fetch(req.url, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(req.body),
+        })
+      ))
+
+      const failed = results.find((r) => !r.ok)
+      if (failed) {
+        const err = await failed.json()
+        setToast({ type: 'error', msg: err.error || 'Save failed.' })
       } else {
-        const err = await res.json()
-        setStatus({ type: 'error', msg: err.error || 'Save failed.' })
+        setToast({ type: 'success', msg: 'Saved — live site updated.' })
       }
     } catch {
-      setStatus({ type: 'error', msg: 'Network error.' })
+      setToast({ type: 'error', msg: 'Network error.' })
     }
     setSaving(false)
   }
@@ -782,11 +862,6 @@ export default function AdminPage() {
           ~/archit &gt; <span style={{ color: '#a78bfa' }}>admin</span>
         </span>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          {status && (
-            <span style={{ fontSize: '12px', color: status.type === 'success' ? '#34d399' : '#f87171', fontFamily: 'monospace' }}>
-              {status.msg}
-            </span>
-          )}
           <Btn variant="primary" onClick={save} disabled={saving}>
             {saving ? 'Saving...' : 'Save & Publish'}
           </Btn>
@@ -832,6 +907,7 @@ export default function AdminPage() {
           {activeTab === 'socials' && <SocialsTab content={content} onChange={setContent} />}
         </div>
       </div>
+      <Toast toast={toast} onDismiss={() => setToast(null)} />
     </div>
   )
 }

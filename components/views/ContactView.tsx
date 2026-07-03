@@ -1,14 +1,15 @@
 'use client'
 
 import { useState } from 'react'
-import type { Socials } from '@/types'
+import type { Socials, ContactInformation } from '@/types'
 import { GitHubIcon, LinkedInIcon } from '@/components/ui/Icons'
 
 interface Props {
   socials: Socials
+  contactInformation: ContactInformation
 }
 
-export function ContactView({ socials }: Props) {
+export function ContactView({ socials, contactInformation }: Props) {
   const [copied, setCopied] = useState(false)
 
   const copyEmail = async () => {
@@ -83,7 +84,7 @@ export function ContactView({ socials }: Props) {
             <p className="text-zinc-500 text-xs">Internship opportunities, collaborations, or just a chat</p>
           </div>
           <a
-            href="https://cal.com/architbh007/coffee-chat"
+            href={contactInformation.calLink}
             target="_blank"
             rel="noopener noreferrer"
             className="flex-shrink-0 px-4 py-2 rounded-md text-xs font-medium transition-colors"
@@ -100,13 +101,13 @@ export function ContactView({ socials }: Props) {
 
       <div className="space-y-3 max-w-lg">
         <p className="text-zinc-500 text-sm leading-relaxed">
-          Currently seeking Software Engineering and AI Engineering internship opportunities for the Australian Summer (November 2026 – February 2027). I hold a Student Visa (Subclass 500) with full working rights during the summer break, as I am not enrolled in Trimester 3. Upon graduating in November 2027, I will be eligible to apply for the Temporary Graduate Visa (Subclass 485).
+          {contactInformation.availabilityBlurb}
         </p>
         <p className="text-zinc-500 text-sm leading-relaxed">
-          I'm always open to discussing engineering opportunities, technical projects, and how I can contribute to building impactful products.
+          {contactInformation.extraBlurb}
         </p>
         <p className="text-zinc-600 text-xs">
-          Fastest response via email — I typically reply within 24 hours.
+          {contactInformation.responseNote}
         </p>
       </div>
     </div>
