@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import type { SiteContent, StoryEntry, Project, SkillGroup, ExperienceItem } from '@/types'
+import type { SiteContent, Project, ExperienceItem } from '@/types'
 import { compressImage } from '@/lib/compressImage'
 import { uploadToStorage } from '@/lib/uploadToStorage'
 import { createClient as createBrowserSupabaseClient } from '@/lib/supabase/browser'
@@ -200,17 +200,17 @@ function StoryTab({ content, onChange }: { content: SiteContent; onChange: (c: S
     onChange({ ...content, story: next })
   }
 
-  const setEvent = (si: number, ei: number, val: string) => {
+  const setEvent = (si: number, ei: number, patch: { month?: string; text?: string }) => {
     const next = story.map((e, idx) => {
       if (idx !== si) return e
-      const events = e.events.map((ev, eidx) => eidx === ei ? val : ev)
+      const events = e.events.map((ev, eidx) => eidx === ei ? { ...ev, ...patch } : ev)
       return { ...e, events }
     })
     onChange({ ...content, story: next })
   }
 
   const addEvent = (si: number) => {
-    const next = story.map((e, idx) => idx === si ? { ...e, events: [...e.events, ''] } : e)
+    const next = story.map((e, idx) => idx === si ? { ...e, events: [...e.events, { text: '' }] } : e)
     onChange({ ...content, story: next })
   }
 
@@ -223,7 +223,7 @@ function StoryTab({ content, onChange }: { content: SiteContent; onChange: (c: S
   }
 
   const addYear = () => {
-    onChange({ ...content, story: [...story, { year: String(new Date().getFullYear()), events: [''] }] })
+    onChange({ ...content, story: [...story, { year: String(new Date().getFullYear()), events: [{ text: '' }] }] })
   }
 
   const removeYear = (i: number) => {
@@ -241,11 +241,18 @@ function StoryTab({ content, onChange }: { content: SiteContent; onChange: (c: S
             </div>
             <Btn variant="danger" onClick={() => removeYear(si)}>Remove year</Btn>
           </div>
-          <Label>Events</Label>
+          <Label>Events (month is optional)</Label>
           {entry.events.map((ev, ei) => (
             <div key={ei} style={{ display: 'flex', gap: '8px', marginBottom: '6px', alignItems: 'center' }}>
+              <div style={{ width: '90px', flexShrink: 0 }}>
+                <Input
+                  value={ev.month ?? ''}
+                  onChange={(v) => setEvent(si, ei, { month: v || undefined })}
+                  placeholder="Month"
+                />
+              </div>
               <div style={{ flex: 1 }}>
-                <Input value={ev} onChange={(v) => setEvent(si, ei, v)} placeholder="Event description..." />
+                <Input value={ev.text} onChange={(v) => setEvent(si, ei, { text: v })} placeholder="Event description..." />
               </div>
               <Btn variant="danger" onClick={() => removeEvent(si, ei)}>×</Btn>
             </div>

@@ -36,9 +36,14 @@ export interface StackRow {
   technologies: string[]
 }
 
+export interface StoryEvent {
+  month?: string
+  text: string
+}
+
 export interface StoryEntry {
   year: string
-  events: string[]
+  events: StoryEvent[]
 }
 
 export interface ExperienceItem {

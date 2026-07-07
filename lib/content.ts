@@ -61,7 +61,9 @@ export async function getContent(): Promise<SiteContent> {
 
   const story: StoryEntry[] = (timelineRows ?? []).map((r) => ({
     year: r.year,
-    events: r.events ?? [],
+    events: ((r.events ?? []) as (string | { month?: string | null; text: string })[]).map((e) =>
+      typeof e === 'string' ? { text: e } : { month: e.month ?? undefined, text: e.text }
+    ),
   }))
 
   const experience: ExperienceItem[] = (experienceRows ?? []).map((r) => ({

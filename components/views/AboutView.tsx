@@ -16,7 +16,7 @@ interface Props {
 
 function SectionLabel({ text }: { text: string }) {
   return (
-    <p className="font-mono text-[11px] text-zinc-600 uppercase tracking-widest mb-5">{text}</p>
+    <p className="font-mono text-[11px] text-zinc-500 uppercase tracking-widest mb-5">{text}</p>
   )
 }
 
@@ -29,7 +29,7 @@ export function AboutView({ profile, stack, story, socials, onNavigate }: Props)
     <div>
       <div className="flex items-center gap-1.5 mb-5">
         <span className="font-mono text-xs text-violet-500">&gt;</span>
-        <span className="font-mono text-xs text-zinc-600">whoami</span>
+        <span className="font-mono text-xs text-zinc-300">whoami</span>
       </div>
 
       <AnimatedSection direction="none" className="flex items-start gap-5">
@@ -55,19 +55,19 @@ export function AboutView({ profile, stack, story, socials, onNavigate }: Props)
 
         <div className="min-w-0">
           <h1 className="text-zinc-100 font-semibold text-xl leading-tight tracking-tight">{profile.name}</h1>
-          <p className="text-zinc-500 text-sm mt-1">{profile.title}</p>
+          <p className="text-zinc-400 text-sm mt-1">{profile.title}</p>
           <p className="text-zinc-400 text-sm mt-3 leading-relaxed max-w-md">
             {profile.subtitle}. I care about building things that work, not just things that look impressive.
           </p>
 
           <div className="flex flex-wrap items-center gap-2 mt-3">
-            <span className="text-zinc-600 text-xs">{profile.location}</span>
+            <span className="text-zinc-500 text-xs">{profile.location}</span>
             <span className="text-zinc-800 text-xs">·</span>
-            <span className="text-zinc-600 text-xs">{profile.university}</span>
+            <span className="text-zinc-500 text-xs">{profile.university}</span>
             {profile.wam != null && (
               <>
                 <span className="text-zinc-800 text-xs">·</span>
-                <span className="text-zinc-600 text-xs">
+                <span className="text-zinc-500 text-xs">
                   WAM {profile.wam}
                   {profile.wamTarget != null && (
                     <span className="text-zinc-700"> → {profile.wamTarget} target</span>
@@ -85,19 +85,19 @@ export function AboutView({ profile, stack, story, socials, onNavigate }: Props)
 
           <div className="flex flex-wrap items-center gap-3 mt-4">
             <a href={socials.github} target="_blank" rel="noopener noreferrer"
-              className="link-underline flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors">
+              className="link-underline flex items-center gap-1.5 text-xs text-zinc-400 hover:text-violet-300 transition-colors">
               <GitHubIcon size={13} />GitHub
             </a>
             <a href={socials.linkedin} target="_blank" rel="noopener noreferrer"
-              className="link-underline flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors">
+              className="link-underline flex items-center gap-1.5 text-xs text-zinc-400 hover:text-violet-300 transition-colors">
               <LinkedInIcon size={13} />LinkedIn
             </a>
             <a href={socials.resume} download="Archit_Bhullar_Resume.pdf"
-              className="link-underline text-xs text-zinc-500 hover:text-zinc-300 transition-colors">
+              className="link-underline text-xs text-zinc-400 hover:text-violet-300 transition-colors">
               Resume ↓
             </a>
             <a href={`mailto:${socials.email}`}
-              className="link-underline text-xs text-zinc-500 hover:text-zinc-300 transition-colors">
+              className="link-underline text-xs text-zinc-400 hover:text-violet-300 transition-colors">
               {socials.email}
             </a>
           </div>
@@ -125,7 +125,7 @@ export function AboutView({ profile, stack, story, socials, onNavigate }: Props)
           <div className="space-y-2.5">
             {stack.map((row) => (
               <div key={row.category} className="flex gap-6 items-baseline">
-                <span className="font-mono text-xs text-zinc-700 flex-shrink-0" style={{ width: '72px' }}>
+                <span className="font-mono text-xs text-zinc-500 flex-shrink-0" style={{ width: '72px' }}>
                   {row.category}
                 </span>
                 <span className="text-zinc-400 text-sm">{row.technologies.join(', ')}</span>
@@ -133,7 +133,7 @@ export function AboutView({ profile, stack, story, socials, onNavigate }: Props)
             ))}
           </div>
           <p className="mt-4 text-xs">
-            <button onClick={() => onNavigate('skills')} className="text-zinc-600 hover:text-zinc-400 transition-colors">
+            <button onClick={() => onNavigate('skills')} className="text-zinc-500 hover:text-violet-300 transition-colors">
               See full skills breakdown →
             </button>
           </p>
@@ -149,15 +149,20 @@ export function AboutView({ profile, stack, story, socials, onNavigate }: Props)
             {story.map((entry, i) => (
               <div key={entry.year} className="flex gap-6">
                 <div className="flex-shrink-0 flex flex-col items-center" style={{ width: '40px' }}>
-                  <span className="font-mono text-xs text-zinc-600">{entry.year}</span>
+                  <span className="font-mono text-xs text-violet-400/80">{entry.year}</span>
                   {i < story.length - 1 && (
                     <div className="flex-1 mt-3"
                       style={{ width: '1px', background: 'rgba(255,255,255,0.05)', minHeight: '24px' }} />
                   )}
                 </div>
                 <ul className="space-y-1.5 pt-0.5 pb-4">
-                  {entry.events.map((event) => (
-                    <li key={event} className="text-zinc-500 text-sm leading-relaxed">{event}</li>
+                  {entry.events.map((event, j) => (
+                    <li key={j} className="flex gap-3">
+                      <span className="font-mono text-[11px] text-zinc-500 lowercase flex-shrink-0 pt-0.5" style={{ width: '52px' }}>
+                        {event.month ?? ''}
+                      </span>
+                      <span className="text-zinc-400 text-sm leading-relaxed">{event.text}</span>
+                    </li>
                   ))}
                 </ul>
               </div>

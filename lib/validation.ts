@@ -22,9 +22,13 @@ export const profileSchema = z.object({
   wamTarget: z.number().optional(),
 })
 
+const storyEventSchema = z.object({
+  month: z.string().optional(),
+  text: z.string(),
+})
 const storyEntrySchema = z.object({
   year: z.string().min(1, 'Year is required'),
-  events: z.array(z.string()),
+  events: z.array(storyEventSchema),
 })
 export const timelineSchema = z.array(storyEntrySchema)
 
