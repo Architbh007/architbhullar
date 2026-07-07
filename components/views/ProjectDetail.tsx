@@ -11,7 +11,7 @@ interface Props {
 
 function Label({ text }: { text: string }) {
   return (
-    <p className="font-mono text-[11px] text-zinc-600 uppercase tracking-widest mb-3">{text}</p>
+    <p className="font-mono text-[11px] text-zinc-500 uppercase tracking-widest mb-3">{text}</p>
   )
 }
 
@@ -74,7 +74,7 @@ export function ProjectDetail({ projects, projectId, onBack }: Props) {
   if (!project) {
     return (
       <div>
-        <button onClick={onBack} className="font-mono text-xs text-zinc-600 hover:text-zinc-400 transition-colors mb-8">
+        <button onClick={onBack} className="font-mono text-xs text-zinc-500 hover:text-violet-300 transition-colors mb-8">
           ← projects
         </button>
         <p className="text-zinc-600 text-sm">Project not found.</p>
@@ -84,7 +84,7 @@ export function ProjectDetail({ projects, projectId, onBack }: Props) {
 
   return (
     <div>
-      <button onClick={onBack} className="font-mono text-xs text-zinc-600 hover:text-zinc-400 transition-colors mb-6">
+      <button onClick={onBack} className="font-mono text-xs text-zinc-500 hover:text-violet-300 transition-colors mb-6">
         ← projects
       </button>
 
@@ -110,13 +110,13 @@ export function ProjectDetail({ projects, projectId, onBack }: Props) {
           <div className="flex items-center gap-3">
             {project.github && (
               <a href={project.github} target="_blank" rel="noopener noreferrer"
-                className="font-mono text-xs text-zinc-600 hover:text-zinc-300 transition-colors">
+                className="font-mono text-xs text-zinc-500 hover:text-violet-300 transition-colors">
                 GitHub ↗
               </a>
             )}
             {project.demo && (
               <a href={project.demo} target="_blank" rel="noopener noreferrer"
-                className="font-mono text-xs text-zinc-600 hover:text-zinc-300 transition-colors">
+                className="font-mono text-xs text-zinc-500 hover:text-violet-300 transition-colors">
                 Demo ↗
               </a>
             )}
@@ -127,58 +127,70 @@ export function ProjectDetail({ projects, projectId, onBack }: Props) {
       </div>
 
       <div className="flex flex-wrap gap-x-6 gap-y-1 mb-2">
-        <span className="font-mono text-xs text-zinc-700">{project.timeline}</span>
-        <span className="font-mono text-xs text-zinc-700">{project.role}</span>
+        {project.timeline && <span className="font-mono text-xs text-zinc-500">{project.timeline}</span>}
+        {project.role && <span className="font-mono text-xs text-zinc-500">{project.role}</span>}
         <span className={`font-mono text-xs ${
-          project.status === 'active' ? 'text-emerald-600'
-          : project.status === 'archived' ? 'text-zinc-700'
-          : 'text-zinc-600'
+          project.status === 'active' ? 'text-emerald-400'
+          : project.status === 'archived' ? 'text-zinc-600'
+          : 'text-zinc-400'
         }`}>
           {project.status}
         </span>
       </div>
 
-      <Divider />
+      {project.problem && (
+        <>
+          <Divider />
+          <section>
+            <Label text="Problem" />
+            <p className="text-zinc-400 text-sm leading-relaxed max-w-2xl">{project.problem}</p>
+          </section>
+        </>
+      )}
 
-      <section>
-        <Label text="Problem" />
-        <p className="text-zinc-400 text-sm leading-relaxed max-w-2xl">{project.problem}</p>
-      </section>
+      {project.architecture && (
+        <>
+          <Divider />
+          <section>
+            <Label text="Architecture" />
+            <p className="text-zinc-400 text-sm leading-relaxed max-w-2xl">{project.architecture}</p>
+          </section>
+        </>
+      )}
 
-      <Divider />
+      {project.challenges.length > 0 && (
+        <>
+          <Divider />
+          <section>
+            <Label text="Technical challenges" />
+            <ul className="space-y-3 max-w-2xl">
+              {project.challenges.map((c) => (
+                <li key={c} className="flex gap-3">
+                  <span className="text-zinc-700 text-sm flex-shrink-0 mt-0.5">—</span>
+                  <span className="text-zinc-400 text-sm leading-relaxed">{c}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </>
+      )}
 
-      <section>
-        <Label text="Architecture" />
-        <p className="text-zinc-400 text-sm leading-relaxed max-w-2xl">{project.architecture}</p>
-      </section>
-
-      <Divider />
-
-      <section>
-        <Label text="Technical challenges" />
-        <ul className="space-y-3 max-w-2xl">
-          {project.challenges.map((c) => (
-            <li key={c} className="flex gap-3">
-              <span className="text-zinc-700 text-sm flex-shrink-0 mt-0.5">—</span>
-              <span className="text-zinc-400 text-sm leading-relaxed">{c}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <Divider />
-
-      <section>
-        <Label text="Tech stack" />
-        <div className="flex flex-wrap gap-2">
-          {project.stack.map((tech) => (
-            <span key={tech} className="font-mono text-xs text-zinc-400 px-2 py-1 rounded"
-              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
-              {tech}
-            </span>
-          ))}
-        </div>
-      </section>
+      {project.stack.length > 0 && (
+        <>
+          <Divider />
+          <section>
+            <Label text="Tech stack" />
+            <div className="flex flex-wrap gap-2">
+              {project.stack.map((tech) => (
+                <span key={tech} className="font-mono text-xs text-violet-300 px-2 py-1 rounded"
+                  style={{ background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.18)' }}>
+                  {tech}
+                </span>
+              ))}
+            </div>
+          </section>
+        </>
+      )}
 
       {/* Video demo */}
       {project.video && (
@@ -191,40 +203,49 @@ export function ProjectDetail({ projects, projectId, onBack }: Props) {
         </>
       )}
 
-      <Divider />
+      {project.learnings.length > 0 && (
+        <>
+          <Divider />
+          <section>
+            <Label text="Key learnings" />
+            <ul className="space-y-3 max-w-2xl">
+              {project.learnings.map((l) => (
+                <li key={l} className="flex gap-3">
+                  <span className="font-mono text-emerald-500/80 text-sm flex-shrink-0 mt-0.5">+</span>
+                  <span className="text-zinc-400 text-sm leading-relaxed">{l}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </>
+      )}
 
-      <section>
-        <Label text="Key learnings" />
-        <ul className="space-y-3 max-w-2xl">
-          {project.learnings.map((l) => (
-            <li key={l} className="flex gap-3">
-              <span className="text-zinc-700 text-sm flex-shrink-0 mt-0.5">—</span>
-              <span className="text-zinc-400 text-sm leading-relaxed">{l}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
+      {project.impact && (
+        <>
+          <Divider />
+          <section>
+            <Label text="Impact" />
+            <p className="text-zinc-400 text-sm leading-relaxed max-w-2xl">{project.impact}</p>
+          </section>
+        </>
+      )}
 
-      <Divider />
-
-      <section>
-        <Label text="Impact" />
-        <p className="text-zinc-400 text-sm leading-relaxed max-w-2xl">{project.impact}</p>
-      </section>
-
-      <Divider />
-
-      <section className="pb-4">
-        <Label text="Future improvements" />
-        <ul className="space-y-2 max-w-2xl">
-          {project.futureImprovements.map((f) => (
-            <li key={f} className="flex gap-3">
-              <span className="text-zinc-700 text-sm flex-shrink-0 mt-0.5">—</span>
-              <span className="text-zinc-500 text-sm leading-relaxed">{f}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
+      {project.futureImprovements.length > 0 && (
+        <>
+          <Divider />
+          <section className="pb-4">
+            <Label text="Future improvements" />
+            <ul className="space-y-2 max-w-2xl">
+              {project.futureImprovements.map((f) => (
+                <li key={f} className="flex gap-3">
+                  <span className="font-mono text-amber-500/70 text-sm flex-shrink-0 mt-0.5">→</span>
+                  <span className="text-zinc-400 text-sm leading-relaxed">{f}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </>
+      )}
     </div>
   )
 }

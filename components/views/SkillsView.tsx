@@ -11,17 +11,17 @@ export function SkillsView({ skills }: Props) {
     <div>
       <div className="flex items-center gap-1.5 mb-8">
         <span className="font-mono text-xs text-violet-500">&gt;</span>
-        <span className="font-mono text-xs text-zinc-600">skills</span>
+        <span className="font-mono text-xs text-zinc-300">skills</span>
       </div>
 
       <div
         className="flex gap-8 pb-3 mb-1"
         style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
       >
-        <span className="font-mono text-[11px] text-zinc-600 uppercase tracking-widest flex-shrink-0" style={{ width: '140px' }}>
+        <span className="font-mono text-[11px] text-zinc-500 uppercase tracking-widest flex-shrink-0" style={{ width: '140px' }}>
           Category
         </span>
-        <span className="font-mono text-[11px] text-zinc-600 uppercase tracking-widest">Skills</span>
+        <span className="font-mono text-[11px] text-zinc-500 uppercase tracking-widest">Skills</span>
       </div>
 
       <div>
@@ -33,7 +33,7 @@ export function SkillsView({ skills }: Props) {
                 className="flex gap-8 py-3"
                 style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}
               >
-                <span className="text-zinc-400 text-xs font-mono flex-shrink-0 pt-0.5" style={{ width: '140px' }}>
+                <span className="text-violet-400/90 text-xs font-mono flex-shrink-0 pt-0.5" style={{ width: '140px' }}>
                   {group.category}
                 </span>
                 <div className="min-w-0 flex-1">
@@ -43,7 +43,7 @@ export function SkillsView({ skills }: Props) {
                         <div key={skill.name}>
                           <p className="text-zinc-200 text-sm font-medium mb-1">{skill.name}</p>
                           {skill.proficiency && (
-                            <p className="text-zinc-500 text-xs leading-relaxed">{skill.proficiency}</p>
+                            <p className="text-zinc-400 text-xs leading-relaxed">{skill.proficiency}</p>
                           )}
                         </div>
                       ))}

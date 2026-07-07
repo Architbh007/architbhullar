@@ -17,7 +17,7 @@ export function Badge({ children, variant = 'default', size = 'md', className }:
         variant === 'default' && 'bg-white/[0.06] text-zinc-300 border border-white/[0.08]',
         variant === 'accent' && 'bg-violet-500/10 text-violet-400 border border-violet-500/20',
         variant === 'success' && 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
-        variant === 'outline' && 'border border-white/[0.1] text-zinc-400',
+        variant === 'outline' && 'border border-white/[0.1] text-zinc-300',
         className
       )}
     >

@@ -16,12 +16,18 @@ const STATUS_DOT: Record<Project['status'], string> = {
   archived: 'bg-zinc-700',
 }
 
+const STATUS_TEXT: Record<Project['status'], string> = {
+  active: 'text-emerald-400',
+  completed: 'text-zinc-400',
+  archived: 'text-zinc-500',
+}
+
 export function ProjectsView({ projects, onSelect }: Props) {
   return (
     <div>
       <div className="flex items-center gap-1.5 mb-6">
         <span className="font-mono text-xs text-violet-500">&gt;</span>
-        <span className="font-mono text-xs text-zinc-600">ls projects</span>
+        <span className="font-mono text-xs text-zinc-300">ls projects</span>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -30,7 +36,7 @@ export function ProjectsView({ projects, onSelect }: Props) {
             <button
               onClick={() => onSelect(project.id)}
               className="group w-full h-full rounded-lg text-left overflow-hidden transition-all duration-300 hover:-translate-y-1"
-              style={{ border: '1px solid rgba(255,255,255,0.07)', background: 'rgba(255,255,255,0.02)' }}
+              style={{ border: '1px solid rgba(255,255,255,0.07)', background: 'rgba(139,92,246,0.03)' }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.borderColor = 'rgba(139,92,246,0.3)'
                 e.currentTarget.style.boxShadow = '0 16px 32px rgba(0,0,0,0.35)'
@@ -64,7 +70,7 @@ export function ProjectsView({ projects, onSelect }: Props) {
                 />
                 <div className="absolute bottom-2.5 left-3 flex items-center gap-1.5">
                   <span className={`inline-block w-1.5 h-1.5 rounded-full ${STATUS_DOT[project.status]}`} />
-                  <span className="font-mono text-[10px] text-zinc-400 uppercase tracking-wide">
+                  <span className={`font-mono text-[10px] ${STATUS_TEXT[project.status]} uppercase tracking-wide`}>
                     {project.status}
                   </span>
                 </div>
@@ -79,7 +85,7 @@ export function ProjectsView({ projects, onSelect }: Props) {
                     →
                   </span>
                 </div>
-                <p className="text-zinc-500 text-xs leading-relaxed mb-3 line-clamp-2">
+                <p className="text-zinc-400 text-xs leading-relaxed mb-3 line-clamp-2">
                   {project.tagline}
                 </p>
                 <div className="flex flex-wrap gap-1.5">
@@ -94,7 +100,7 @@ export function ProjectsView({ projects, onSelect }: Props) {
       </div>
 
       <div className="mt-8 pt-6" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-        <p className="text-zinc-700 text-xs">
+        <p className="text-zinc-500 text-xs">
           {projects.length} projects · click any to view details
         </p>
       </div>
